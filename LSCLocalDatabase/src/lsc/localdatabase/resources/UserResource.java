@@ -36,10 +36,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 import lsc.localdatabase.App;
-import lsc.localdatabase.model.Data;
-import lsc.localdatabase.model.DataList;
-import lsc.localdatabase.model.Deadline;
-import lsc.localdatabase.model.DeadlineList;
 import lsc.localdatabase.model.Goal;
 import lsc.localdatabase.model.GoalList;
 import lsc.localdatabase.model.Notification;
@@ -56,208 +52,150 @@ import lsc.localdatabase.utils.MultivaluedMapImpl;
 
 @Stateless
 @LocalBean
-@Path("/")
-public class MainResource {
+public class UserResource {
+
+	@Context UriInfo uriInfo;
+	@Context Request request;
+	int user_id;
 	
-	@Context
-	UriInfo uriInfo;
-	@Context
-	Request request;
+	public UserResource(UriInfo uriInfo, Request request, int user_id) {
+		this.uriInfo = uriInfo;
+		this.request = request;
+		this.user_id = user_id;
+	}
 	
 	
 	
-	// ----
-	// user
-	// ----
+	// -------
+	// user/id
+	// -------
 	
-	@Path("/user")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public UserList getAllUsers() {
+	public User getById() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		System.out.println("http get "+uriInfo.getPath());
-		return User.getAll( uriInfo.getQueryParameters() );
+		//return User.getById(user_id);
+		return User.getById(User.class, user_id);
 	}
 	
-	@Path("/user")
-	@POST
+	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newUser(User user) {
-		System.out.println("http post "+uriInfo.getPath());
-		user = User.save(user);
-		return Response.created( URI.create( user._getUrl() ) ).build();
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+	public User put(User user) {
+		System.out.println("http put "+uriInfo.getPath());
+		user.setId(user_id);
+		return User.update(user);
 	}
 	
-	@Path("/user/{user_id}")
-	public UserResource getUser(@PathParam("user_id") int user_id) {
-		return new UserResource(uriInfo, request, user_id);
+	@DELETE
+	public void delete() {
+		System.out.println("http delete "+uriInfo.getPath());
+		User.remove( User.getById(user_id) );
 	}
 	
 	
 	
-	// ------
-	// record
-	// ------
+	// --------------
+	// user/id/record
+	// --------------
 	
 	@Path("/record")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public RecordList getAllRecords() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Record.getAll( uriInfo.getQueryParameters() );
+		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
+		param.putSingle("user_id", String.valueOf(user_id) );
+		return Record.getAll( param );
 	}
 
 	@Path("/record")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newRecord(Record record) {
+	public Response newEntry(Record record) {
 		System.out.println("http post "+uriInfo.getPath());
+		record.setUser( User.getById(user_id) );
 		record = Record.save(record);
 		return Response.created( URI.create( record._getUrl() ) ).build();
 	}
 	
-	@Path("record/{record_id}")
-	public RecordResource getRecord(@PathParam("record_id") int record_id) {
-		return new RecordResource(uriInfo, request, record_id);
-	}
 	
 	
-	
-	// ----
-	// data
-	// ----
-	
-	@Path("/data")
-	@GET
-	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DataList getAllDatas() {
-		System.out.println("http get "+uriInfo.getPath());
-		return Data.getAll( uriInfo.getQueryParameters() );
-	}
-
-	@Path("/data")
-	@POST
-	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newData(Data data) {
-		System.out.println("http post "+uriInfo.getPath());
-		data = Data.save(data);
-		return Response.created( URI.create( data._getUrl() ) ).build();
-	}
-	
-	@Path("data/{data_id}")
-	public DataResource getData(@PathParam("data_id") int data_id) {
-		return new DataResource(uriInfo, request, data_id);
-	}
-	
-	
-	
-	// ----
-	// goal
-	// ----
+	// ------------
+	// user/id/goal
+	// ------------
 	
 	@Path("/goal")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public GoalList getAllGoals() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Goal.getAll( uriInfo.getQueryParameters() );
+		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
+		param.putSingle("user_id", String.valueOf(user_id) );
+		return Goal.getAll( param );
 	}
 
 	@Path("/goal")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newGoal(Goal goal) {
+	public Response newEntry(Goal goal) {
 		System.out.println("http post "+uriInfo.getPath());
+		goal.setUser( User.getById(user_id) );
 		goal = Goal.save(goal);
 		return Response.created( URI.create( goal._getUrl() ) ).build();
 	}
 	
-	@Path("goal/{goal_id}")
-	public GoalResource getGoal(@PathParam("goal_id") int goal_id) {
-		return new GoalResource(uriInfo, request, goal_id);
-	}
 	
 	
-	
-	// --------
-	// deadline
-	// --------
-	
-	@Path("/deadline")
-	@GET
-	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DeadlineList getAllDeadlines() {
-		System.out.println("http get "+uriInfo.getPath());
-		return Deadline.getAll( uriInfo.getQueryParameters() );
-	}
-
-	@Path("/deadline")
-	@POST
-	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newDeadline(Deadline deadline) {
-		System.out.println("http post "+uriInfo.getPath());
-		deadline = Deadline.save(deadline);
-		return Response.created( URI.create( deadline._getUrl() ) ).build();
-	}
-	
-	@Path("deadline/{deadline_id}")
-	public DeadlineResource getDeadline(@PathParam("deadline_id") int deadline_id) {
-		return new DeadlineResource(uriInfo, request, deadline_id);
-	}
-	
-	
-	
-	// ------------
-	// notification
-	// ------------
+	// --------------------
+	// user/id/notification
+	// --------------------
 	
 	@Path("/notification")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public NotificationList getAllNotifications() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Notification.getAll( uriInfo.getQueryParameters() );
+		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
+		param.putSingle("user_id", String.valueOf(user_id) );
+		return Notification.getAll( param );
 	}
 
 	@Path("/notification")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newNotification(Notification notification) {
+	public Response newEntry(Notification notification) {
 		System.out.println("http post "+uriInfo.getPath());
+		notification.setUser( User.getById(user_id) );
 		notification = Notification.save(notification);
 		return Response.created( URI.create( notification._getUrl() ) ).build();
 	}
 	
-	@Path("notification/{notification_id}")
-	public NotificationResource getNotification(@PathParam("notification_id") int notification_id) {
-		return new NotificationResource(uriInfo, request, notification_id);
-	}
 	
 	
-	
-	// ----
-	// todo
-	// ----
+	// ------------
+	// user/id/todo
+	// ------------
 	
 	@Path("/todo")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public ToDoList getAllToDos() {
 		System.out.println("http get "+uriInfo.getPath());
-		return ToDo.getAll( uriInfo.getQueryParameters() );
+		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
+		param.putSingle("user_id", String.valueOf(user_id) );
+		return ToDo.getAll( param );
 	}
 
 	@Path("/todo")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newToDo(ToDo todo) {
+	public Response newEntry(ToDo todo) {
 		System.out.println("http post "+uriInfo.getPath());
+		todo.setUser( User.getById(user_id) );
 		todo = ToDo.save(todo);
 		return Response.created( URI.create( todo._getUrl() ) ).build();
 	}
 	
-	@Path("todo/{todo_id}")
-	public ToDoResource getToDo(@PathParam("todo_id") int todo_id) {
-		return new ToDoResource(uriInfo, request, todo_id);
-	}
 	
 }

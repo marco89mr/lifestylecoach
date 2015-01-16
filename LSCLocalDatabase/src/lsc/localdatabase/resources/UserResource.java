@@ -1,33 +1,15 @@
 package lsc.localdatabase.resources;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.ejb.*;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
-import javax.persistence.PersistenceUnit;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
@@ -35,18 +17,21 @@ import javax.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-import lsc.localdatabase.App;
+import lsc.localdatabase.dao.GoalDao;
+import lsc.localdatabase.dao.NotificationDao;
+import lsc.localdatabase.dao.RecordDao;
+import lsc.localdatabase.dao.ToDoDao;
+import lsc.localdatabase.dao.UserDao;
 import lsc.localdatabase.model.Goal;
-import lsc.localdatabase.model.GoalList;
+import lsc.localdatabase.model.GoalCollection;
 import lsc.localdatabase.model.Notification;
-import lsc.localdatabase.model.NotificationList;
+import lsc.localdatabase.model.NotificationCollection;
 import lsc.localdatabase.model.Record;
-import lsc.localdatabase.model.RecordList;
-import lsc.localdatabase.model.TableEntity;
+import lsc.localdatabase.model.RecordCollection;
 import lsc.localdatabase.model.ToDo;
-import lsc.localdatabase.model.ToDoList;
+import lsc.localdatabase.model.ToDoCollection;
 import lsc.localdatabase.model.User;
-import lsc.localdatabase.model.UserList;
+import lsc.localdatabase.parser.Parser;
 import lsc.localdatabase.utils.MultivaluedMapImpl;
 
 
@@ -75,7 +60,7 @@ public class UserResource {
 	public User getById() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		System.out.println("http get "+uriInfo.getPath());
 		//return User.getById(user_id);
-		return User.getById(User.class, user_id);
+		return Parser.generate( UserDao.getById(User.class, user_id) );
 	}
 	
 	@PUT
@@ -84,13 +69,15 @@ public class UserResource {
 	public User put(User user) {
 		System.out.println("http put "+uriInfo.getPath());
 		user.setId(user_id);
-		return User.update(user);
+		Parser.parse(user);
+		Parser.generate(user);
+		return UserDao.update(user);
 	}
 	
 	@DELETE
 	public void delete() {
 		System.out.println("http delete "+uriInfo.getPath());
-		User.remove( User.getById(user_id) );
+		UserDao.remove( UserDao.getById(user_id) );
 	}
 	
 	
@@ -102,11 +89,11 @@ public class UserResource {
 	@Path("/record")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public RecordList getAllRecords() {
+	public RecordCollection getAllRecords() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Record.getAll( param );
+		return Parser.generate( RecordDao.getAll( param ) );
 	}
 
 	@Path("/record")
@@ -114,8 +101,10 @@ public class UserResource {
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public Response newEntry(Record record) {
 		System.out.println("http post "+uriInfo.getPath());
-		record.setUser( User.getById(user_id) );
-		record = Record.save(record);
+		record.setUser( UserDao.getById(user_id) );
+		record = Parser.parse(record);
+		record = Parser.generate(record);
+		record = RecordDao.save(record);
 		return Response.created( URI.create( record._getUrl() ) ).build();
 	}
 	
@@ -128,11 +117,11 @@ public class UserResource {
 	@Path("/goal")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public GoalList getAllGoals() {
+	public GoalCollection getAllGoals() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Goal.getAll( param );
+		return Parser.generate( GoalDao.getAll( param ) );
 	}
 
 	@Path("/goal")
@@ -140,8 +129,10 @@ public class UserResource {
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public Response newEntry(Goal goal) {
 		System.out.println("http post "+uriInfo.getPath());
-		goal.setUser( User.getById(user_id) );
-		goal = Goal.save(goal);
+		goal.setUser( UserDao.getById(user_id) );
+		goal = Parser.parse(goal);
+		goal = Parser.generate(goal);
+		goal = GoalDao.save(goal);
 		return Response.created( URI.create( goal._getUrl() ) ).build();
 	}
 	
@@ -154,11 +145,11 @@ public class UserResource {
 	@Path("/notification")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public NotificationList getAllNotifications() {
+	public NotificationCollection getAllNotifications() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Notification.getAll( param );
+		return Parser.generate( NotificationDao.getAll( param ) );
 	}
 
 	@Path("/notification")
@@ -166,8 +157,10 @@ public class UserResource {
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public Response newEntry(Notification notification) {
 		System.out.println("http post "+uriInfo.getPath());
-		notification.setUser( User.getById(user_id) );
-		notification = Notification.save(notification);
+		notification.setUser( UserDao.getById(user_id) );
+		notification = Parser.parse(notification);
+		notification = Parser.generate(notification);
+		notification = NotificationDao.save(notification);
 		return Response.created( URI.create( notification._getUrl() ) ).build();
 	}
 	
@@ -180,11 +173,11 @@ public class UserResource {
 	@Path("/todo")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public ToDoList getAllToDos() {
+	public ToDoCollection getAllToDos() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return ToDo.getAll( param );
+		return Parser.generate( ToDoDao.getAll( param ) );
 	}
 
 	@Path("/todo")
@@ -192,8 +185,10 @@ public class UserResource {
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public Response newEntry(ToDo todo) {
 		System.out.println("http post "+uriInfo.getPath());
-		todo.setUser( User.getById(user_id) );
-		todo = ToDo.save(todo);
+		todo.setUser( UserDao.getById(user_id) );
+		todo = Parser.parse(todo);
+		todo = Parser.generate(todo);
+		todo = ToDoDao.save(todo);
 		return Response.created( URI.create( todo._getUrl() ) ).build();
 	}
 	

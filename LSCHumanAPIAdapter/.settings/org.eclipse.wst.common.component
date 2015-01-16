@@ -2,6 +2,8 @@
     <wb-module deploy-name="LSCHumanAPIAdapter">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/external/humanapi-java-client-master/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/external/urlbuilder-master/src/main/java"/>
         <property name="context-root" value="LSCHumanAPIAdapter"/>
         <property name="java-output-path" value="/LSCHumanAPIAdapter/build/classes"/>
     </wb-module>

@@ -1,19 +1,11 @@
 package lsc.localdatabase.model;
 
-import lsc.localdatabase.App;
-import lsc.localdatabase.dao.LifeCoachDao;
-
 import java.io.Serializable;
-import java.net.URI;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -23,16 +15,9 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 
 @Entity
@@ -40,7 +25,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 @NamedQuery(name = "Goal.findAll", query = "SELECT g FROM Goal g")
 //@XmlType(name = "goal", propOrder = { "selfLink", "userLink", "record_type", "data_name", "operator", "value", "function", "reference", "perc", "repeat", "days", "deadlineLink" })
 @XmlRootElement(name="goal")
-public class Goal implements Serializable {
+public class Goal extends Base implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
@@ -163,23 +148,20 @@ public class Goal implements Serializable {
 	// 
 	
 	@XmlElement(name="link")
-	public Link getSelfLink() { return Link.create("self", this._getUrl() ); }
+	public Link getSelfLink() { return getLink("self"); }
 	
-	public void setSelfLink(Link link) {
-		if(link.getRel().equals("user"))
-			this.user = User.getByUrl( link.getHref() );
-	}
+	public void setSelfLink(Link link) { putLink(link); }
 	
 	@XmlElement(name="link")
-	public Link getUserLink() { return Link.create("user", this.user._getUrl() ); }
+	public Link getUserLink() { return getLink("user"); }
 	
-	public void setUserLink(Link link) { setSelfLink(link); }
+	public void setUserLink(Link link) { putLink(link); }
 	
 	
 	@XmlElement(name="link")
-	public Link getDeadlineLink() { return Link.create("deadlines", this._getUrl()+"/deadline"); }
+	public Link getDeadlineLink() { return getLink("deadlines"); }
 	
-	public void setDeadlineLink(Link link) { setSelfLink(link); }
+	public void setDeadlineLink(Link link) { putLink(link); }
 	
 	
 	
@@ -187,101 +169,7 @@ public class Goal implements Serializable {
 	// 
 	
 	public String _getUrl() {
-		return App.getBASE_URI()+"goal/"+this.getId();
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// Database operations
-	// 
-	
-	public static Goal getByUrl(String url) {
-		URI uri = URI.create( url );
-		String path = uri.getPath();
-		int slash = path.lastIndexOf("/");
-		String id = path.substring(slash+1);
-		Goal entry = Goal.getById( Integer.parseInt(id) );
-		// check
-		if(entry!=null && entry._getUrl().equals( url ) )
-			return entry;
-		else
-			return null;
-	}
-	
-	public static Goal getById(int id) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		Goal m = em.find(Goal.class, id);
-		LifeCoachDao.instance.closeConnections(em);
-		return m;
-	}
-	
-	public static GoalList getAll() {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		GoalList list = new GoalList( em.createNamedQuery("Goal.findAll", Goal.class).getResultList() );
-	    LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
-	
-	public static GoalList getAll(MultivaluedMap<String,String> param) {
-		System.out.println("--> model.goal.getAll(filters)");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		GoalList list = new GoalList();
-		// building query
-		String where = " WHERE g.id > 0";
-		
-		if(param.containsKey("user_id"))
-			where+=" and g.user.id = "+param.getFirst("user_id");
-		if(param.containsKey("record_type"))
-			where+=" and g.record.type LIKE "+param.getFirst("record_type");
-		if(param.containsKey("data_name"))
-			where+=" and g.name LIKE "+param.getFirst("data_name");
-		if(param.containsKey("last"))
-			where+=" ORDER BY id DESC LIMIT 0, "+param.getFirst("last");
-		
-		System.out.println("--> "+"SELECT g FROM Goal g"+where);
-		TypedQuery<Goal> query = em.createQuery("SELECT g FROM Goal g"+where, Goal.class);
-		// querying
-		list.setList( query.getResultList() );
-		LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
-	
-	public static Goal save(Goal m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		em.persist(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static Goal update(Goal m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		m=em.merge(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static void remove(Goal m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-	    m=em.merge(m);
-	    em.remove(m);
-	    tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
+		return _getBaseUrl()+"goal/"+this.getId();
 	}
 	
 }

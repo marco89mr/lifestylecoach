@@ -1,39 +1,20 @@
 package lsc.localdatabase.model;
 
-import lsc.localdatabase.App;
-import lsc.localdatabase.dao.LifeCoachDao;
-
 import java.io.Serializable;
-import java.net.URI;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 
 @Entity
@@ -41,7 +22,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 @NamedQuery(name = "ToDo.findAll", query = "SELECT d FROM ToDo d")
 @XmlType(name = "todo", propOrder = { "selfLink", "userLink", "by_date", "message", "status" })
 @XmlRootElement(name="todo")
-public class ToDo implements Serializable {
+public class ToDo extends Base implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
@@ -107,19 +88,15 @@ public class ToDo implements Serializable {
 	// 
 	
 	@XmlElement(name="link")
-	public Link getSelfLink() { return Link.create("self", this._getUrl() ); }
+	public Link getSelfLink() { return getLink("self"); }
 	
-	public void setSelfLink(Link link) {
-		System.out.println("DEBUG: selfLink");
-		if(link.getRel().equals("user"))
-			this.user = User.getByUrl( link.getHref() );
-	}
+	public void setSelfLink(Link link) { putLink(link); }
 	
 	
 	@XmlElement(name="link", required=true)
-	public Link getUserLink() { return Link.create("user", this.getUser()._getUrl() ); }
+	public Link getUserLink() { return getLink("user"); }
 	
-	public void setUserLink(Link link) { setSelfLink(link); }
+	public void setUserLink(Link link) { putLink(link); }
 	
 	
 	
@@ -127,104 +104,9 @@ public class ToDo implements Serializable {
 	// 
 	
 	public String _getUrl() {
-		return App.getBASE_URI()+"todo/"+this.getId();
+		return _getBaseUrl()+"todo/"+this.getId();
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// Database operations
-	// 
-	
-	public static ToDo getByUrl(String url) {
-		URI uri = URI.create( url );
-		String path = uri.getPath();
-		int slash = path.lastIndexOf("/");
-		String id = path.substring(slash+1);
-		ToDo entry = ToDo.getById( Integer.parseInt(id) );
-		// check
-		if(entry!=null && entry._getUrl().equals( url ) )
-			return entry;
-		else
-			return null;
-	}
-	
-	public static ToDo getById(int id) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		ToDo m = em.find(ToDo.class, id);
-		LifeCoachDao.instance.closeConnections(em);
-		return m;
-	}
-	
-	public static List<ToDo> getAll() {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-	    List<ToDo> list = em.createNamedQuery("ToDo.findAll", ToDo.class).getResultList();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
-	
-	public static ToDoList getAll(MultivaluedMap<String,String> param) {
-		System.out.println("--> model.record.getAll(filters)");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		ToDoList list = new ToDoList();
-		// building query
-		String where = " WHERE t.id > 0";
-		
-		if(param.containsKey("user_id"))
-			where+=" and t.user.id = "+param.getFirst("user_id")+"";
-		if(param.containsKey("type"))
-			where+=" and t.type LIKE \""+param.getFirst("type")+"\"";
-		if(param.containsKey("last"))
-			where+=" and t.mail LIKE \""+param.getFirst("last")+"\"";
-		if(param.containsKey("fromdate"))
-			where+=" and t.date > \""+param.getFirst("fromdate")+"\"";
-		if(param.containsKey("todate"))
-			where+=" and t.date < \""+param.getFirst("todate")+"\"";
-		
-		System.out.println("--> "+"SELECT t FROM Record t"+where);
-		TypedQuery<ToDo> query = em.createQuery("SELECT t FROM ToDo t"+where, ToDo.class);
-		// querying
-		list.setList( query.getResultList() );
-		LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
-	
-	public static ToDo save(ToDo m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		em.persist(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static ToDo update(ToDo m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		m=em.merge(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static void remove(ToDo m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-	    m=em.merge(m);
-	    em.remove(m);
-	    tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	}
 	
 }
 

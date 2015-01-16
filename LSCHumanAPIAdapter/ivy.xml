@@ -78,6 +78,12 @@
         <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1.1"/>
 
         <dependency org="org.glassfish.jersey.media" name="jersey-media-json-jackson" rev="2.11"/>
+        
+        
+        <!--  FOR HUMAN API SDK 
+        <dependency org="us.monoid.web" name="resty" rev="0.3.2"/> -->  
+        
+        
             
         
     </dependencies>

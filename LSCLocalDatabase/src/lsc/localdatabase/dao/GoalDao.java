@@ -1,49 +1,27 @@
 package lsc.localdatabase.dao;
 
-import java.net.URI;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.core.MultivaluedMap;
-import lsc.localdatabase.dao.LifeCoachDao;
-import lsc.localdatabase.model.Goal;
-import lsc.localdatabase.model.GoalCollection;
+
+import lsc.localdatabase.dao.LifeStyleCoachDao;
+import lsc.localdatabase.dao.model.Goal;
+import lsc.localdatabase.dao.model.GoalCollection;
 
 
-public class GoalDao {
+public class GoalDao extends BaseDao<Goal, GoalCollection>  {
 	
 	
-	public static Goal getByUrl(String url) {
-		URI uri = URI.create( url );
-		String path = uri.getPath();
-		int slash = path.lastIndexOf("/");
-		String id = path.substring(slash+1);
-		Goal entry = getById( Integer.parseInt(id) );
-		// check
-		if(entry!=null && entry._getUrl().equals( url ) )
-			return entry;
-		else
-			return null;
+	public GoalDao() {
+		this.model_class = Goal.class;
+		this.model_collection_class = GoalCollection.class;
 	}
 	
-	public static Goal getById(int id) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		Goal m = em.find(Goal.class, id);
-		LifeCoachDao.instance.closeConnections(em);
-		return m;
-	}
 	
-	public static GoalCollection getAll() {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		GoalCollection list = new GoalCollection( em.createNamedQuery("Goal.findAll", Goal.class).getResultList() );
-	    LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
 	
-	public static GoalCollection getAll(MultivaluedMap<String,String> param) {
+	public GoalCollection getAll(MultivaluedMap<String,String> param) {
 		System.out.println("--> model.goal.getAll(filters)");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		GoalCollection list = new GoalCollection();
+		EntityManager em = LifeStyleCoachDao.instance.createEntityManager();
 		// building query
 		String where = " WHERE g.id > 0";
 		
@@ -59,39 +37,10 @@ public class GoalDao {
 		System.out.println("--> "+"SELECT g FROM Goal g"+where);
 		TypedQuery<Goal> query = em.createQuery("SELECT g FROM Goal g"+where, Goal.class);
 		// querying
-		list.setList( query.getResultList() );
-		LifeCoachDao.instance.closeConnections(em);
+		GoalCollection list = new GoalCollection();
+		list.addAll( query.getResultList() );
+		LifeStyleCoachDao.instance.closeConnections(em);
 	    return list;
-	}
-	
-	public static Goal save(Goal m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		em.persist(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static Goal update(Goal m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		m=em.merge(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static void remove(Goal m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-	    m=em.merge(m);
-	    em.remove(m);
-	    tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
 	}
 	
 }

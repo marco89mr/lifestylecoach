@@ -1,51 +1,27 @@
 package lsc.localdatabase.dao;
 
-import java.net.URI;
-
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.core.MultivaluedMap;
 
-import lsc.localdatabase.dao.LifeCoachDao;
-import lsc.localdatabase.model.ToDo;
-import lsc.localdatabase.model.ToDoCollection;
+import lsc.localdatabase.dao.LifeStyleCoachDao;
+import lsc.localdatabase.dao.model.ToDo;
+import lsc.localdatabase.dao.model.ToDoCollection;
 
 
-public class ToDoDao {
+public class ToDoDao extends BaseDao<ToDo, ToDoCollection> {
 	
 	
-	public static ToDo getByUrl(String url) {
-		URI uri = URI.create( url );
-		String path = uri.getPath();
-		int slash = path.lastIndexOf("/");
-		String id = path.substring(slash+1);
-		ToDo entry = getById( Integer.parseInt(id) );
-		// check
-		if(entry!=null && entry._getUrl().equals( url ) )
-			return entry;
-		else
-			return null;
+	public ToDoDao() {
+		this.model_class = ToDo.class;
+		this.model_collection_class = ToDoCollection.class;
 	}
 	
-	public static ToDo getById(int id) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		ToDo m = em.find(ToDo.class, id);
-		LifeCoachDao.instance.closeConnections(em);
-		return m;
-	}
 	
-	public static ToDoCollection getAll() {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		ToDoCollection list = new ToDoCollection( em.createNamedQuery("ToDo.findAll", ToDo.class).getResultList() );
-	    LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
 	
-	public static ToDoCollection getAll(MultivaluedMap<String,String> param) {
+	public ToDoCollection getAll(MultivaluedMap<String,String> param) {
 		System.out.println("--> model.record.getAll(filters)");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		ToDoCollection list = new ToDoCollection();
+		EntityManager em = LifeStyleCoachDao.instance.createEntityManager();
 		// building query
 		String where = " WHERE t.id > 0";
 		
@@ -63,39 +39,13 @@ public class ToDoDao {
 		System.out.println("--> "+"SELECT t FROM Record t"+where);
 		TypedQuery<ToDo> query = em.createQuery("SELECT t FROM ToDo t"+where, ToDo.class);
 		// querying
-		list.setList( query.getResultList() );
-		LifeCoachDao.instance.closeConnections(em);
+		ToDoCollection list = new ToDoCollection();
+		list.addAll( query.getResultList() );
+		LifeStyleCoachDao.instance.closeConnections(em);
 	    return list;
 	}
+
+
 	
-	public static ToDo save(ToDo m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		em.persist(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static ToDo update(ToDo m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		m=em.merge(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static void remove(ToDo m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-	    m=em.merge(m);
-	    em.remove(m);
-	    tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	}
 	
 }

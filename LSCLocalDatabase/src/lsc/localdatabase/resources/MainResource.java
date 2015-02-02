@@ -15,28 +15,31 @@ import javax.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-import lsc.localdatabase.dao.DataDao;
-import lsc.localdatabase.dao.DeadlineDao;
-import lsc.localdatabase.dao.GoalDao;
-import lsc.localdatabase.dao.NotificationDao;
-import lsc.localdatabase.dao.RecordDao;
-import lsc.localdatabase.dao.ToDoDao;
-import lsc.localdatabase.dao.UserDao;
-import lsc.localdatabase.model.Data;
-import lsc.localdatabase.model.DataCollection;
-import lsc.localdatabase.model.Deadline;
-import lsc.localdatabase.model.DeadlineCollection;
-import lsc.localdatabase.model.Goal;
-import lsc.localdatabase.model.GoalCollection;
-import lsc.localdatabase.model.Notification;
-import lsc.localdatabase.model.NotificationCollection;
-import lsc.localdatabase.model.Record;
-import lsc.localdatabase.model.RecordCollection;
-import lsc.localdatabase.model.ToDo;
-import lsc.localdatabase.model.ToDoCollection;
-import lsc.localdatabase.model.User;
-import lsc.localdatabase.model.UserCollection;
-import lsc.localdatabase.parser.Parser;
+import lsc.localdatabase.dao.DaoFactory;
+import lsc.localdatabase.dao.model.Data;
+import lsc.localdatabase.dao.model.Deadline;
+import lsc.localdatabase.dao.model.Goal;
+import lsc.localdatabase.dao.model.Notification;
+import lsc.localdatabase.dao.model.Record;
+import lsc.localdatabase.dao.model.ToDo;
+import lsc.localdatabase.dao.model.User;
+import lsc.localdatabase.dao.model.UserCollection;
+import lsc.localdatabase.rest.ParserFactory;
+import lsc.localdatabase.rest.model.DataCollectionRest;
+import lsc.localdatabase.rest.model.DataRest;
+import lsc.localdatabase.rest.model.DeadlineCollectionRest;
+import lsc.localdatabase.rest.model.DeadlineRest;
+import lsc.localdatabase.rest.model.GoalCollectionRest;
+import lsc.localdatabase.rest.model.GoalRest;
+import lsc.localdatabase.rest.model.NotificationCollectionRest;
+import lsc.localdatabase.rest.model.NotificationRest;
+import lsc.localdatabase.rest.model.RecordCollectionRest;
+import lsc.localdatabase.rest.model.RecordRest;
+import lsc.localdatabase.rest.model.ToDoCollectionRest;
+import lsc.localdatabase.rest.model.ToDoRest;
+import lsc.localdatabase.rest.model.UserCollectionRest;
+import lsc.localdatabase.rest.model.UserRest;
+import lsc.localdatabase.rest.path.PathFactory;
 
 
 @Stateless
@@ -58,20 +61,43 @@ public class MainResource {
 	@Path("/user")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public UserCollection getAllUsers() {
+	public UserCollectionRest getAllUsers() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( UserDao.getAll( uriInfo.getQueryParameters() ) );
+		UserCollection list = DaoFactory.user.getAll( uriInfo.getQueryParameters() );
+		//System.out.println("hi "+list.get(0).getName());
+		
+		/*
+		// Debug for marshalling
+		JAXBContext jc = null;
+	    Marshaller m = null;
+		try {
+			jc = JAXBContext.newInstance(UserCollectionRest.class);
+			System.out.println("1");
+			m = jc.createMarshaller();
+			System.out.println("2");
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			System.out.println("3");
+			m.marshal(lll, System.out);
+			System.out.println("4");
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		UserCollectionRest collection = ParserFactory.user.toRest( list );
+		//System.out.println("hi "+collection.get(0).getName());
+		return collection;
 	}
 	
 	@Path("/user")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newUser(User user) {
+	public Response newUser(UserRest user) {
 		System.out.println("http post "+uriInfo.getPath());
-		user = Parser.parse(user);
-		user = Parser.generate(user);
-		user = UserDao.save(user);
-		return Response.created( URI.create( user._getUrl() ) ).build();
+		User user_dao = ParserFactory.user.toDao( user );
+		DaoFactory.user.save(user_dao);
+		UserRest user_rest = ParserFactory.user.toRest( user_dao );
+		return Response.created( URI.create( user_rest.getSelfLink().getHref() ) ).build();
 	}
 	
 	@Path("/user/{user_id}")
@@ -88,20 +114,19 @@ public class MainResource {
 	@Path("/record")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public RecordCollection getAllRecords() {
+	public RecordCollectionRest getAllRecords() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( RecordDao.getAll( uriInfo.getQueryParameters() ) );
+		return ParserFactory.record.toRest( DaoFactory.record.getAll( uriInfo.getQueryParameters() ) );
 	}
 
 	@Path("/record")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newRecord(Record record) {
+	public Response newRecord(RecordRest record) {
 		System.out.println("http post "+uriInfo.getPath());
-		record = Parser.parse(record);
-		record = Parser.generate(record);
-		record = RecordDao.save(record);
-		return Response.created( URI.create( record._getUrl() ) ).build();
+		Record record_dao = ParserFactory.record.toDao( record );
+		DaoFactory.record.save(record_dao);
+		return Response.created( URI.create( PathFactory.record().id(record_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	@Path("record/{record_id}")
@@ -118,20 +143,19 @@ public class MainResource {
 	@Path("/data")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DataCollection getAllDatas() {
+	public DataCollectionRest getAllDatas() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( DataDao.getAll( uriInfo.getQueryParameters() ) );
+		return ParserFactory.data.toRest( DaoFactory.data.getAll( uriInfo.getQueryParameters() ) );
 	}
 
 	@Path("/data")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newData(Data data) {
+	public Response newData(DataRest data) {
 		System.out.println("http post "+uriInfo.getPath());
-		data = Parser.parse(data);
-		data = Parser.generate(data);
-		data = DataDao.save(data);
-		return Response.created( URI.create( data._getUrl() ) ).build();
+		Data data_dao = ParserFactory.data.toDao(data);
+		DaoFactory.data.save(data_dao);
+		return Response.created( URI.create( PathFactory.data().id(data_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	@Path("data/{data_id}")
@@ -148,20 +172,19 @@ public class MainResource {
 	@Path("/goal")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public GoalCollection getAllGoals() {
+	public GoalCollectionRest getAllGoals() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( GoalDao.getAll( uriInfo.getQueryParameters() ) );
+		return ParserFactory.goal.toRest( DaoFactory.goal.getAll( uriInfo.getQueryParameters() ) );
 	}
 
 	@Path("/goal")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newGoal(Goal goal) {
+	public Response newGoal(GoalRest goal) {
 		System.out.println("http post "+uriInfo.getPath());
-		goal = Parser.parse(goal);
-		goal = Parser.generate(goal);
-		goal = GoalDao.save(goal);
-		return Response.created( URI.create( goal._getUrl() ) ).build();
+		Goal goal_dao = ParserFactory.goal.toDao(goal);
+		DaoFactory.goal.save(goal_dao);
+		return Response.created( URI.create( PathFactory.goal().id(goal_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	@Path("goal/{goal_id}")
@@ -178,20 +201,19 @@ public class MainResource {
 	@Path("/deadline")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DeadlineCollection getAllDeadlines() {
+	public DeadlineCollectionRest getAllDeadlines() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( DeadlineDao.getAll( uriInfo.getQueryParameters() ) );
+		return ParserFactory.deadline.toRest( DaoFactory.deadline.getAll( uriInfo.getQueryParameters() ) );
 	}
 
 	@Path("/deadline")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newDeadline(Deadline deadline) {
+	public Response newDeadline(DeadlineRest deadline) {
 		System.out.println("http post "+uriInfo.getPath());
-		deadline = Parser.parse(deadline);
-		deadline = Parser.generate(deadline);
-		deadline = DeadlineDao.save(deadline);
-		return Response.created( URI.create( deadline._getUrl() ) ).build();
+		Deadline deadline_dao = ParserFactory.deadline.toDao(deadline);
+		DaoFactory.deadline.save(deadline_dao);
+		return Response.created( URI.create( PathFactory.deadline().id(deadline_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	@Path("deadline/{deadline_id}")
@@ -208,20 +230,19 @@ public class MainResource {
 	@Path("/notification")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public NotificationCollection getAllNotifications() {
+	public NotificationCollectionRest getAllNotifications() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( NotificationDao.getAll( uriInfo.getQueryParameters() ) );
+		return ParserFactory.notification.toRest( DaoFactory.notification.getAll( uriInfo.getQueryParameters() ) );
 	}
 
 	@Path("/notification")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newNotification(Notification notification) {
+	public Response newNotification(NotificationRest notification) {
 		System.out.println("http post "+uriInfo.getPath());
-		notification = Parser.parse(notification);
-		notification = Parser.generate(notification);
-		notification = NotificationDao.save(notification);
-		return Response.created( URI.create( notification._getUrl() ) ).build();
+		Notification notification_dao = ParserFactory.notification.toDao(notification);
+		DaoFactory.notification.save(notification_dao);
+		return Response.created( URI.create( PathFactory.notification().id(notification_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	@Path("notification/{notification_id}")
@@ -238,20 +259,19 @@ public class MainResource {
 	@Path("/todo")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public ToDoCollection getAllToDos() {
+	public ToDoCollectionRest getAllToDos() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( ToDoDao.getAll( uriInfo.getQueryParameters() ) );
+		return ParserFactory.todo.toRest( DaoFactory.todo.getAll( uriInfo.getQueryParameters() ) );
 	}
 
 	@Path("/todo")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newToDo(ToDo todo) {
+	public Response newToDo(ToDoRest todo) {
 		System.out.println("http post "+uriInfo.getPath());
-		todo = Parser.parse(todo);
-		todo = Parser.generate(todo);
-		todo = ToDoDao.save(todo);
-		return Response.created( URI.create( todo._getUrl() ) ).build();
+		ToDo todo_dao = ParserFactory.todo.toDao(todo);
+		DaoFactory.todo.save(todo_dao);
+		return Response.created( URI.create( PathFactory.todo().id(todo_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	@Path("todo/{todo_id}")

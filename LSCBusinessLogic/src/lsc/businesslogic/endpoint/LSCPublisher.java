@@ -1,6 +1,5 @@
 package lsc.businesslogic.endpoint;
 
-import javax.persistence.EntityManager;
 import javax.xml.ws.Endpoint;
 
 import lsc.businesslogic.ws.LSCLogicImpl;

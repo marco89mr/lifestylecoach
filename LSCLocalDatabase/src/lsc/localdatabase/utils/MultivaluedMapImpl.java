@@ -14,8 +14,6 @@ import javax.ws.rs.core.MultivaluedMap;
 public class MultivaluedMapImpl<K, V> // extends LinkedHashMap<K,List<V>>
     implements MultivaluedMap<K, V>, Cloneable {
 
-    private static final long     serialVersionUID = -1942980976209902832L;
-
     private final Map<K, List<V>> map;
 
     public MultivaluedMapImpl() {
@@ -213,6 +211,7 @@ public class MultivaluedMapImpl<K, V> // extends LinkedHashMap<K,List<V>>
         return map.values();
     }
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addAll(K arg0, V... arg1) {
 		// TODO Auto-generated method stub

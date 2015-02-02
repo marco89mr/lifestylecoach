@@ -1,54 +1,30 @@
 package lsc.localdatabase.dao;
 
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.core.MultivaluedMap;
-import lsc.localdatabase.dao.LifeCoachDao;
-import lsc.localdatabase.model.User;
-import lsc.localdatabase.model.UserCollection;
+
+import lsc.localdatabase.dao.LifeStyleCoachDao;
+import lsc.localdatabase.dao.model.User;
+import lsc.localdatabase.dao.model.UserCollection;
 
 
-public class UserDao extends BaseDao {
+public class UserDao extends BaseDao<User, UserCollection> {
 	
 	
-	public static User getByUrl(String url) {
-		URI uri = URI.create( url );
-		String path = uri.getPath();
-		int slash = path.lastIndexOf("/");
-		String id = path.substring(slash+1);
-		User entry = UserDao.getById( Integer.parseInt(id) );
-		// check
-		if(entry!=null && entry._getUrl().equals( url ) )
-			return entry;
-		else
-			return null;
+	public UserDao() {
+		this.model_class = User.class;
+		this.model_collection_class = UserCollection.class;
 	}
 	
-	public static User getById(int id) {
-		//System.out.println("--> model.user.getById("+id+")");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		User u = em.find(User.class, id);
-		//System.out.println("--> model.getById() name:"+u.getName()+" birthdate:"+u.getBirthdate());
-		LifeCoachDao.instance.closeConnections(em);
-		return u;
-	}
 	
-	public static UserCollection getAll() {
-		System.out.println("--> model.user.getAll()");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		UserCollection list = new UserCollection( em.createNamedQuery("User.findAll", User.class).getResultList() );
-	    LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
 	
-	public static UserCollection getAll(MultivaluedMap<String,String> param) {
+	public UserCollection getAll(MultivaluedMap<String,String> param) {
 		System.out.println("--> model.user.getAll(filters)");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		UserCollection list = new UserCollection();
+		EntityManager em = LifeStyleCoachDao.instance.createEntityManager();
 		// building query
 		String where = " WHERE u.id > 0";
 		
@@ -80,41 +56,10 @@ public class UserDao extends BaseDao {
 		System.out.println("--> "+"SELECT u FROM User u"+where);
 		TypedQuery<User> query = em.createQuery("SELECT u FROM User u"+where, User.class);
 		// querying
-		list.setList( query.getResultList() );
-		LifeCoachDao.instance.closeConnections(em);
+		UserCollection list = new UserCollection();
+		list.addAll( query.getResultList() );
+		LifeStyleCoachDao.instance.closeConnections(em);
 	    return list;
 	}
 	
-	public static User save(User u) {
-		System.out.println("--> model.user.save("+u.getId()+")");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		em.persist(u);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return u;
-	}
-	
-	public static User update(User u) {
-		System.out.println("--> model.user.update("+u.getId()+")");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		u=em.merge(u);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return u;
-	}
-	
-	public static void remove(User u) {
-		System.out.println("--> model.user.remove("+u.getId()+")");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-	    u=em.merge(u);
-	    em.remove(u);
-	    tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	}
 }

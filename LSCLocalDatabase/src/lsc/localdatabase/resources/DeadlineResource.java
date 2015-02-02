@@ -11,9 +11,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import lsc.localdatabase.dao.DeadlineDao;
-import lsc.localdatabase.model.Deadline;
-import lsc.localdatabase.parser.Parser;
+import lsc.localdatabase.dao.DaoFactory;
+import lsc.localdatabase.dao.model.Deadline;
+import lsc.localdatabase.rest.ParserFactory;
+import lsc.localdatabase.rest.model.DeadlineRest;
 
 
 @Stateless
@@ -38,26 +39,25 @@ public class DeadlineResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Deadline getById() {
+	public DeadlineRest getById() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( DeadlineDao.getById(deadline_id) );
+		return ParserFactory.deadline.toRest( DaoFactory.deadline.getById(deadline_id) );
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Deadline put(Deadline deadline) {
+	public DeadlineRest put(DeadlineRest deadline) {
 		System.out.println("http put "+uriInfo.getPath());
-		deadline.setId(deadline_id);
-		Parser.parse(deadline);
-		Parser.generate(deadline);
-		return DeadlineDao.update(deadline);
+		Deadline deadline_dao = ParserFactory.deadline.toDao(deadline);
+		deadline_dao.setId(deadline_id);
+		return ParserFactory.deadline.toRest( DaoFactory.deadline.update(deadline_dao) );
 	}
 	
 	@DELETE
 	public void delete() {
 		System.out.println("http delete "+uriInfo.getPath());
-		DeadlineDao.remove( DeadlineDao.getById(deadline_id) );
+		DaoFactory.deadline.remove( DaoFactory.deadline.getById(deadline_id) );
 	}
 	
 	

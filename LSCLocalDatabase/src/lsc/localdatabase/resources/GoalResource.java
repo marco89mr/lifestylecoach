@@ -1,6 +1,9 @@
 package lsc.localdatabase.resources;
 
-import javax.ejb.*;
+import java.net.URI;
+
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -15,14 +18,14 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import java.net.URI;
-
-import lsc.localdatabase.dao.DeadlineDao;
-import lsc.localdatabase.dao.GoalDao;
-import lsc.localdatabase.model.Deadline;
-import lsc.localdatabase.model.DeadlineCollection;
-import lsc.localdatabase.model.Goal;
-import lsc.localdatabase.parser.Parser;
+import lsc.localdatabase.dao.DaoFactory;
+import lsc.localdatabase.dao.model.Deadline;
+import lsc.localdatabase.dao.model.Goal;
+import lsc.localdatabase.rest.ParserFactory;
+import lsc.localdatabase.rest.model.DeadlineCollectionRest;
+import lsc.localdatabase.rest.model.DeadlineRest;
+import lsc.localdatabase.rest.model.GoalRest;
+import lsc.localdatabase.rest.path.PathFactory;
 import lsc.localdatabase.utils.MultivaluedMapImpl;
 
 
@@ -48,26 +51,25 @@ public class GoalResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Goal getById() {
+	public GoalRest getById() {
 		System.out.println("http get "+uriInfo.getPath());
-		return Parser.generate( GoalDao.getById(goal_id) );
+		return ParserFactory.goal.toRest( DaoFactory.goal.getById(goal_id) );
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Goal put(Goal goal) {
+	public GoalRest put(GoalRest goal) {
 		System.out.println("http put "+uriInfo.getPath());
-		goal.setId(goal_id);
-		Parser.parse(goal);
-		Parser.generate(goal);
-		return GoalDao.update(goal);
+		Goal goal_dao = ParserFactory.goal.toDao(goal);
+		goal_dao.setId(goal_id);
+		return ParserFactory.goal.toRest( DaoFactory.goal.update(goal_dao) );
 	}
 	
 	@DELETE
 	public void delete() {
 		System.out.println("http delete "+uriInfo.getPath());
-		GoalDao.remove( GoalDao.getById(goal_id) );
+		DaoFactory.goal.remove( DaoFactory.goal.getById(goal_id) );
 	}
 	
 	
@@ -79,23 +81,22 @@ public class GoalResource {
 	@Path("/deadline")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DeadlineCollection getAll() {
+	public DeadlineCollectionRest getAll() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("goal_id", String.valueOf(goal_id) );
-		return Parser.generate( DeadlineDao.getAll( param ) );
+		return ParserFactory.deadline.toRest( DaoFactory.deadline.getAll( param ) );
 	}
 
 	@Path("/deadline")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(Deadline deadline) {
+	public Response newEntry(DeadlineRest deadline) {
 		System.out.println("http post "+uriInfo.getPath());
-		deadline.setGoal( GoalDao.getById(goal_id) );
-		deadline = DeadlineDao.save(deadline);
-		deadline = Parser.parse(deadline);
-		deadline = Parser.generate(deadline);
-		return Response.created( URI.create( deadline._getUrl() ) ).build();
+		Deadline deadline_dao = ParserFactory.deadline.toDao(deadline);
+		deadline_dao.setGoal( DaoFactory.goal.getById(goal_id) );
+		DaoFactory.deadline.save(deadline_dao);
+		return Response.created( URI.create( PathFactory.deadline().id(deadline_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	

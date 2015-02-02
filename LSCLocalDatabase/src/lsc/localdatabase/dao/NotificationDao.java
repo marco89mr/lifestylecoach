@@ -1,51 +1,28 @@
 package lsc.localdatabase.dao;
 
-import java.net.URI;
-import java.util.List;
-
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.core.MultivaluedMap;
-import lsc.localdatabase.dao.LifeCoachDao;
-import lsc.localdatabase.model.Notification;
-import lsc.localdatabase.model.NotificationCollection;
+
+import lsc.localdatabase.dao.LifeStyleCoachDao;
+import lsc.localdatabase.dao.model.Notification;
+import lsc.localdatabase.dao.model.NotificationCollection;
 
 
-public class NotificationDao {
+public class NotificationDao extends BaseDao<Notification, NotificationCollection>  {
 	
 	
-	public static Notification getByUrl(String url) {
-		URI uri = URI.create( url );
-		String path = uri.getPath();
-		int slash = path.lastIndexOf("/");
-		String id = path.substring(slash+1);
-		Notification entry = getById( Integer.parseInt(id) );
-		// check
-		if(entry!=null && entry._getUrl().equals( url ) )
-			return entry;
-		else
-			return null;
+	
+	public NotificationDao() {
+		this.model_class = Notification.class;
+		this.model_collection_class = NotificationCollection.class;
 	}
 	
-	public static Notification getById(int id) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		Notification m = em.find(Notification.class, id);
-		LifeCoachDao.instance.closeConnections(em);
-		return m;
-	}
 	
-	public static List<Notification> getAll() {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-	    List<Notification> list = em.createNamedQuery("Notification.findAll", Notification.class).getResultList();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return list;
-	}
-	
-	public static NotificationCollection getAll(MultivaluedMap<String,String> param) {
+
+	public NotificationCollection getAll(MultivaluedMap<String,String> param) {
 		System.out.println("--> model.goal.getAll(filters)");
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		NotificationCollection list = new NotificationCollection();
+		EntityManager em = LifeStyleCoachDao.instance.createEntityManager();
 		// building query
 		String where = " WHERE n.id > 0";
 		
@@ -61,39 +38,11 @@ public class NotificationDao {
 		System.out.println("--> "+"SELECT n FROM Goal n"+where);
 		TypedQuery<Notification> query = em.createQuery("SELECT n FROM Notification n"+where, Notification.class);
 		// querying
-		list.setList( query.getResultList() );
-		LifeCoachDao.instance.closeConnections(em);
+		NotificationCollection list = new NotificationCollection();
+		list.addAll( query.getResultList() );
+		LifeStyleCoachDao.instance.closeConnections(em);
 	    return list;
 	}
 	
-	public static Notification save(Notification m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		em.persist(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static Notification update(Notification m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-		m=em.merge(m);
-		tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	    return m;
-	}
-	
-	public static void remove(Notification m) {
-		EntityManager em = LifeCoachDao.instance.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		tx.begin();
-	    m=em.merge(m);
-	    em.remove(m);
-	    tx.commit();
-	    LifeCoachDao.instance.closeConnections(em);
-	}
 	
 }

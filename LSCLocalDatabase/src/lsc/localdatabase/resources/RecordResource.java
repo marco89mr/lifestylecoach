@@ -17,12 +17,14 @@ import javax.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-import lsc.localdatabase.dao.DataDao;
-import lsc.localdatabase.dao.RecordDao;
-import lsc.localdatabase.model.Data;
-import lsc.localdatabase.model.DataCollection;
-import lsc.localdatabase.model.Record;
-import lsc.localdatabase.parser.Parser;
+import lsc.localdatabase.dao.DaoFactory;
+import lsc.localdatabase.dao.model.Data;
+import lsc.localdatabase.dao.model.Record;
+import lsc.localdatabase.rest.ParserFactory;
+import lsc.localdatabase.rest.model.DataCollectionRest;
+import lsc.localdatabase.rest.model.DataRest;
+import lsc.localdatabase.rest.model.RecordRest;
+import lsc.localdatabase.rest.path.PathFactory;
 import lsc.localdatabase.utils.MultivaluedMapImpl;
 
 
@@ -48,27 +50,26 @@ public class RecordResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Record getById() {
+	public RecordRest getById() {
 		System.out.println("http get "+uriInfo.getPath());
 		//return Response.ok( Record.getById( record_id ) ).build();
-		return Parser.generate( RecordDao.getById( record_id ) );
+		return ParserFactory.record.toRest( DaoFactory.record.getById( record_id ) );
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Record put(Record record) {
+	public RecordRest put(RecordRest record) {
 		System.out.println("http put "+uriInfo.getPath());
-		record.setId(record_id);
-		Parser.parse(record);
-		Parser.generate(record);
-		return RecordDao.update(record);
+		Record record_dao = ParserFactory.record.toDao( record );
+		record_dao.setId(record_id);
+		return ParserFactory.record.toRest( DaoFactory.record.update(record_dao) );
 	}
 	
 	@DELETE
 	public void delete() {
 		System.out.println("http delete "+uriInfo.getPath());
-		RecordDao.remove( RecordDao.getById(record_id) );
+		DaoFactory.record.remove( DaoFactory.record.getById(record_id) );
 	}
 	
 	
@@ -80,23 +81,22 @@ public class RecordResource {
 	@Path("/data")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DataCollection getAll() {
+	public DataCollectionRest getAll() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("record_id", String.valueOf(record_id) );
-		return Parser.generate( DataDao.getAll( param ) );
+		return ParserFactory.data.toRest( DaoFactory.data.getAll( param ) );
 	}
 
 	@Path("/data")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(Data data) {
+	public Response newEntry(DataRest data) {
 		System.out.println("http post "+uriInfo.getPath());
-		data.setRecord( RecordDao.getById(record_id) );
-		data = DataDao.save(data);
-		data = Parser.parse(data);
-		data = Parser.generate(data);
-		return Response.created( URI.create( data._getUrl() ) ).build();
+		Data data_dao = ParserFactory.data.toDao( data );
+		data_dao.setRecord( DaoFactory.record.getById(record_id) );
+		DaoFactory.data.save(data_dao);
+		return Response.created( URI.create( PathFactory.data().id(data_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	

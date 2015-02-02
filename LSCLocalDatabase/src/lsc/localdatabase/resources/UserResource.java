@@ -17,21 +17,23 @@ import javax.ws.rs.core.UriInfo;
 
 import java.net.URI;
 
-import lsc.localdatabase.dao.GoalDao;
-import lsc.localdatabase.dao.NotificationDao;
-import lsc.localdatabase.dao.RecordDao;
-import lsc.localdatabase.dao.ToDoDao;
-import lsc.localdatabase.dao.UserDao;
-import lsc.localdatabase.model.Goal;
-import lsc.localdatabase.model.GoalCollection;
-import lsc.localdatabase.model.Notification;
-import lsc.localdatabase.model.NotificationCollection;
-import lsc.localdatabase.model.Record;
-import lsc.localdatabase.model.RecordCollection;
-import lsc.localdatabase.model.ToDo;
-import lsc.localdatabase.model.ToDoCollection;
-import lsc.localdatabase.model.User;
-import lsc.localdatabase.parser.Parser;
+import lsc.localdatabase.dao.DaoFactory;
+import lsc.localdatabase.dao.model.Goal;
+import lsc.localdatabase.dao.model.Notification;
+import lsc.localdatabase.dao.model.Record;
+import lsc.localdatabase.dao.model.ToDo;
+import lsc.localdatabase.dao.model.User;
+import lsc.localdatabase.rest.ParserFactory;
+import lsc.localdatabase.rest.model.GoalCollectionRest;
+import lsc.localdatabase.rest.model.GoalRest;
+import lsc.localdatabase.rest.model.NotificationCollectionRest;
+import lsc.localdatabase.rest.model.NotificationRest;
+import lsc.localdatabase.rest.model.RecordCollectionRest;
+import lsc.localdatabase.rest.model.RecordRest;
+import lsc.localdatabase.rest.model.ToDoCollectionRest;
+import lsc.localdatabase.rest.model.ToDoRest;
+import lsc.localdatabase.rest.model.UserRest;
+import lsc.localdatabase.rest.path.PathFactory;
 import lsc.localdatabase.utils.MultivaluedMapImpl;
 
 
@@ -57,27 +59,48 @@ public class UserResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public User getById() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public UserRest getById() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		System.out.println("http get "+uriInfo.getPath());
-		//return User.getById(user_id);
-		return Parser.generate( UserDao.getById(User.class, user_id) );
+		User user = DaoFactory.user.getById(user_id);
+		System.out.println("hi there :"+user.getName());
+		
+		// Debug for marshalling
+		/*
+		JAXBContext jc = null;
+        Marshaller m = null;
+		try {
+			jc = JAXBContext.newInstance(UserRest.class);
+			System.out.println("1");
+			m = jc.createMarshaller();
+			System.out.println("2");
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			System.out.println("3");
+			m.marshal(user, System.out);
+			System.out.println("4");
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		
+		
+		return ParserFactory.user.toRest( user );
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public User put(User user) {
+	public UserRest put(UserRest user) {
 		System.out.println("http put "+uriInfo.getPath());
-		user.setId(user_id);
-		Parser.parse(user);
-		Parser.generate(user);
-		return UserDao.update(user);
+		User user_dao = ParserFactory.user.toDao(user);
+		user_dao.setId(user_id);
+		return ParserFactory.user.toRest( DaoFactory.user.update(user_dao) );
 	}
 	
 	@DELETE
 	public void delete() {
 		System.out.println("http delete "+uriInfo.getPath());
-		UserDao.remove( UserDao.getById(user_id) );
+		DaoFactory.user.remove( DaoFactory.user.getById(user_id) );
 	}
 	
 	
@@ -89,23 +112,22 @@ public class UserResource {
 	@Path("/record")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public RecordCollection getAllRecords() {
+	public RecordCollectionRest getAllRecords() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Parser.generate( RecordDao.getAll( param ) );
+		return ParserFactory.record.toRest( DaoFactory.record.getAll( param ) );
 	}
 
 	@Path("/record")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(Record record) {
+	public Response newEntry(RecordRest record) {
 		System.out.println("http post "+uriInfo.getPath());
-		record.setUser( UserDao.getById(user_id) );
-		record = Parser.parse(record);
-		record = Parser.generate(record);
-		record = RecordDao.save(record);
-		return Response.created( URI.create( record._getUrl() ) ).build();
+		Record record_dao = ParserFactory.record.toDao(record);
+		record_dao.setUser( DaoFactory.user.getById(user_id) );
+		DaoFactory.record.save(record_dao);
+		return Response.created( URI.create( PathFactory.record().id(record_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	
@@ -117,23 +139,22 @@ public class UserResource {
 	@Path("/goal")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public GoalCollection getAllGoals() {
+	public GoalCollectionRest getAllGoals() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Parser.generate( GoalDao.getAll( param ) );
+		return ParserFactory.goal.toRest( DaoFactory.goal.getAll( param ) );
 	}
 
 	@Path("/goal")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(Goal goal) {
+	public Response newEntry(GoalRest goal) {
 		System.out.println("http post "+uriInfo.getPath());
-		goal.setUser( UserDao.getById(user_id) );
-		goal = Parser.parse(goal);
-		goal = Parser.generate(goal);
-		goal = GoalDao.save(goal);
-		return Response.created( URI.create( goal._getUrl() ) ).build();
+		Goal goal_dao = ParserFactory.goal.toDao(goal);
+		goal_dao.setUser( DaoFactory.user.getById(user_id) );
+		DaoFactory.goal.save(goal_dao);
+		return Response.created( URI.create( PathFactory.goal().id(goal_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	
@@ -145,23 +166,22 @@ public class UserResource {
 	@Path("/notification")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public NotificationCollection getAllNotifications() {
+	public NotificationCollectionRest getAllNotifications() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Parser.generate( NotificationDao.getAll( param ) );
+		return ParserFactory.notification.toRest( DaoFactory.notification.getAll( param ) );
 	}
 
 	@Path("/notification")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(Notification notification) {
+	public Response newEntry(NotificationRest notification) {
 		System.out.println("http post "+uriInfo.getPath());
-		notification.setUser( UserDao.getById(user_id) );
-		notification = Parser.parse(notification);
-		notification = Parser.generate(notification);
-		notification = NotificationDao.save(notification);
-		return Response.created( URI.create( notification._getUrl() ) ).build();
+		Notification notification_dao = ParserFactory.notification.toDao(notification);
+		notification_dao.setUser( DaoFactory.user.getById(user_id) );
+		DaoFactory.notification.save(notification_dao);
+		return Response.created( URI.create( PathFactory.goal().id(notification_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	
@@ -173,23 +193,22 @@ public class UserResource {
 	@Path("/todo")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public ToDoCollection getAllToDos() {
+	public ToDoCollectionRest getAllToDos() {
 		System.out.println("http get "+uriInfo.getPath());
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		param.putSingle("user_id", String.valueOf(user_id) );
-		return Parser.generate( ToDoDao.getAll( param ) );
+		return ParserFactory.todo.toRest( DaoFactory.todo.getAll( param ) );
 	}
 
 	@Path("/todo")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(ToDo todo) {
+	public Response newEntry(ToDoRest todo) {
 		System.out.println("http post "+uriInfo.getPath());
-		todo.setUser( UserDao.getById(user_id) );
-		todo = Parser.parse(todo);
-		todo = Parser.generate(todo);
-		todo = ToDoDao.save(todo);
-		return Response.created( URI.create( todo._getUrl() ) ).build();
+		ToDo todo_dao = ParserFactory.todo.toDao(todo);
+		todo_dao.setUser( DaoFactory.user.getById(user_id) );
+		DaoFactory.todo.save(todo_dao);
+		return Response.created( URI.create( PathFactory.todo().id(todo_dao.getId()).getCompletePath() ) ).build();
 	}
 	
 	

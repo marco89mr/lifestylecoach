@@ -10,7 +10,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class App
 {
     private static final URI BASE_URI = URI.create("http://localhost:8080/lsc/");	
-    public static void main(String[] args) throws IllegalArgumentException, IOException, URISyntaxException
+    public static void main(String[] args) throws Exception, IllegalArgumentException, IOException, URISyntaxException
     {
     	System.out.println("Starting lifestylecoach final UI standalone HTTP server...");
         JdkHttpServerFactory.createHttpServer(BASE_URI, createApp());

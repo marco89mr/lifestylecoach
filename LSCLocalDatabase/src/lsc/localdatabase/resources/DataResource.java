@@ -11,10 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import lsc.localdatabase.dao.DaoFactory;
-import lsc.localdatabase.dao.model.Data;
-import lsc.localdatabase.rest.ParserFactory;
-import lsc.localdatabase.rest.model.DataRest;
+import lsc.localdatabase.logic.LocalDatabaseLogic;
+import lsc.rest.model.Data;
 
 
 @Stateless
@@ -39,27 +37,20 @@ public class DataResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DataRest getById() {
-		System.out.println("http get "+uriInfo.getPath());
-		System.out.println("hi "+DaoFactory.data.getById(data_id).getName());
-		return ParserFactory.data.toRest( DaoFactory.data.getById(data_id) );
-		//return Parser.generate( DaoFactory.data.getById(data_id) );
+	public Data getById() {
+		return LocalDatabaseLogic.data.getById(uriInfo, data_id);
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public DataRest put(DataRest data) {
-		System.out.println("http put "+uriInfo.getPath());
-		Data data_dao = ParserFactory.data.toDao(data);
-		data_dao.setId(data_id);
-		return ParserFactory.data.toRest( DaoFactory.data.update(data_dao) );
+	public Data put(Data data) {
+		return LocalDatabaseLogic.data.put(uriInfo, data, data_id);
 	}
 	
 	@DELETE
 	public void delete() {
-		System.out.println("http delete "+uriInfo.getPath());
-		DaoFactory.data.remove( DaoFactory.data.getById(data_id) );
+		LocalDatabaseLogic.data.delete(uriInfo, data_id);
 	}
 	
 	

@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import lsc.localdatabase.dao.LifeStyleCoachDao;
-import lsc.localdatabase.rest.path.PathFactory;
+import lsc.localdatabase.dao.dataaccess.LifeStyleCoachDao;
+import lsc.localdatabase.rest.client.LocalDatabaseClient;
 
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class App
 {
-    private static final URI BASE_URI = URI.create( PathFactory.getCompletePath() );
+    private static final URI BASE_URI = URI.create( LocalDatabaseClient.BaseClient.main_url() );
     
     public static void main(String[] args) throws IllegalArgumentException, IOException, URISyntaxException
     {

@@ -11,10 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import lsc.localdatabase.dao.DaoFactory;
-import lsc.localdatabase.dao.model.Notification;
-import lsc.localdatabase.rest.ParserFactory;
-import lsc.localdatabase.rest.model.NotificationRest;
+import lsc.localdatabase.logic.LocalDatabaseLogic;
+import lsc.rest.model.Notification;
 
 
 @Stateless
@@ -39,25 +37,20 @@ public class NotificationResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public NotificationRest getById() {
-		System.out.println("http get "+uriInfo.getPath());
-		return ParserFactory.notification.toRest( DaoFactory.notification.getById(notification_id) );
+	public Notification getById() {
+		return LocalDatabaseLogic.notification.getById(uriInfo, notification_id);
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public NotificationRest put(NotificationRest notification) {
-		System.out.println("http put "+uriInfo.getPath());
-		Notification notification_dao = ParserFactory.notification.toDao(notification);
-		notification_dao.setId(notification_id);
-		return ParserFactory.notification.toRest( DaoFactory.notification.update(notification_dao) );
+	public Notification put(Notification notification) {
+		return LocalDatabaseLogic.notification.put(uriInfo, notification, notification_id);
 	}
 	
 	@DELETE
 	public void delete() {
-		System.out.println("http delete "+uriInfo.getPath());
-		DaoFactory.notification.remove( DaoFactory.notification.getById(notification_id) );
+		LocalDatabaseLogic.notification.delete(uriInfo, notification_id);
 	}
 	
 	

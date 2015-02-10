@@ -11,10 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import lsc.localdatabase.dao.DaoFactory;
-import lsc.localdatabase.dao.model.ToDo;
-import lsc.localdatabase.rest.ParserFactory;
-import lsc.localdatabase.rest.model.ToDoRest;
+import lsc.localdatabase.logic.LocalDatabaseLogic;
+import lsc.rest.model.ToDo;
 
 
 @Stateless
@@ -39,25 +37,20 @@ public class ToDoResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public ToDoRest getById() {
-		System.out.println("http get "+uriInfo.getPath());
-		return ParserFactory.todo.toRest( DaoFactory.todo.getById(todo_id) );
+	public ToDo getById() {
+		return LocalDatabaseLogic.todo.getById(uriInfo, todo_id);
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public ToDoRest put(ToDoRest todo) {
-		System.out.println("http put "+uriInfo.getPath());
-		ToDo todo_dao = ParserFactory.todo.toDao(todo);
-		todo_dao.setId(todo_id);
-		return ParserFactory.todo.toRest( DaoFactory.todo.update(todo_dao) );
+	public ToDo put(ToDo todo) {
+		return LocalDatabaseLogic.todo.put(uriInfo, todo, todo_id);
 	}
 	
 	@DELETE
 	public void delete() {
-		System.out.println("http delete "+uriInfo.getPath());
-		DaoFactory.todo.remove( DaoFactory.todo.getById(todo_id) );
+		LocalDatabaseLogic.todo.delete(uriInfo, todo_id);
 	}
 	
 	

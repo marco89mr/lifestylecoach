@@ -8,50 +8,47 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 
-import lsc.businesslogic.transfer.RecordData;
-import lsc.businesslogic.transfer.Statistic;
-import lsc.localdatabase.rest.model.GoalRest;
+import lsc.rest.model.Deadline;
+import lsc.rest.model.Goal;
+import lsc.rest.model.Goal.Interval;
+import lsc.rest.model.NotificationCollection;
+import lsc.rest.model.RecordComplex;
+import lsc.rest.model.Statistic;
+import lsc.rest.model.User;
 
 @WebService
 @SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL) //optional
 public interface LSCLogic {
 	
 	
-    @WebMethod(operationName="register_record")
-    @WebResult(name="record")
-    public int register_record(					@WebParam(name="record") RecordData record		);
-    
-    /*
-    @WebMethod(operationName="read_goal")
-    @WebResult(name="GoalDeadline")
-    public GoalDeadline read_goal(				@WebParam(name="goal_id") int goal_id			);
-    */
-    
-    @WebMethod(operationName="register_goal")
-    @WebResult(name="void")
-    public int register_goal(					@WebParam(name="goal") GoalRest goal,
-    											@WebParam(name="end_date") String end_date		);
+	
+    @WebMethod(operationName="check_record")
+    @WebResult(name="NotificationCollection")
+    public NotificationCollection check_record(	@WebParam(name="record") 	RecordComplex record	);
     
     
-    @WebMethod(operationName="complete_todo")
-    @WebResult(name="void")
-    public int complete_todo(					@WebParam(name="todo_id") int todo_id			);
+    
+    @WebMethod(operationName="check_deadline")
+    @WebResult(name="NotificationCollection")
+    public NotificationCollection check_deadline(@WebParam(name="deadline") Deadline deadline		);
     
     
-    @WebMethod(operationName="update_today_goal_and_notification")
-    @WebResult(name="void")
-    public int update_today_goal_and_notification(												);
+    
+    @WebMethod(operationName="check_today")
+    @WebResult(name="NotificationCollection")
+    public NotificationCollection check_today(	@WebParam(name="user")		User user				);
+    
     
     
     @WebMethod(operationName="compute_statistic")
     @WebResult(name="Statistic")
-    public Statistic compute_statistic(			@WebParam(name="user_id")	int user_id,
-	    										@WebParam(name="record_type")String record_type,
-	    										@WebParam(name="field_name")String field_name,
-	    										@WebParam(name="from")		String from,
-	    										@WebParam(name="to") 		String to,
-	    										@WebParam(name="on_interval")String on_interval,
-	    										@WebParam(name="function")	String function		);
+    public Statistic compute_statistic(			@WebParam(name="user_id")		int user_id,
+	    										@WebParam(name="record_type")	String record_type,
+	    										@WebParam(name="field_name")	String field_name,
+	    										@WebParam(name="from")			String from,
+	    										@WebParam(name="to") 			String to,
+	    										@WebParam(name="on_interval")	Interval on_interval,
+	    										@WebParam(name="function")		Goal.Function function	);
     
     
 }

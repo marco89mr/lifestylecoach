@@ -10,31 +10,21 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import java.net.URI;
-
-import lsc.localdatabase.dao.DaoFactory;
-import lsc.localdatabase.dao.model.Goal;
-import lsc.localdatabase.dao.model.Notification;
-import lsc.localdatabase.dao.model.Record;
-import lsc.localdatabase.dao.model.ToDo;
-import lsc.localdatabase.dao.model.User;
-import lsc.localdatabase.rest.ParserFactory;
-import lsc.localdatabase.rest.model.GoalCollectionRest;
-import lsc.localdatabase.rest.model.GoalRest;
-import lsc.localdatabase.rest.model.NotificationCollectionRest;
-import lsc.localdatabase.rest.model.NotificationRest;
-import lsc.localdatabase.rest.model.RecordCollectionRest;
-import lsc.localdatabase.rest.model.RecordRest;
-import lsc.localdatabase.rest.model.ToDoCollectionRest;
-import lsc.localdatabase.rest.model.ToDoRest;
-import lsc.localdatabase.rest.model.UserRest;
-import lsc.localdatabase.rest.path.PathFactory;
-import lsc.localdatabase.utils.MultivaluedMapImpl;
+import lsc.localdatabase.logic.LocalDatabaseLogic;
+import lsc.rest.filter.LocalDatabaseFilter;
+import lsc.rest.model.Goal;
+import lsc.rest.model.GoalCollection;
+import lsc.rest.model.Notification;
+import lsc.rest.model.NotificationCollection;
+import lsc.rest.model.Record;
+import lsc.rest.model.RecordCollection;
+import lsc.rest.model.ToDo;
+import lsc.rest.model.ToDoCollection;
+import lsc.rest.model.User;
 
 
 @Stateless
@@ -59,10 +49,8 @@ public class UserResource {
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public UserRest getById() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		System.out.println("http get "+uriInfo.getPath());
-		User user = DaoFactory.user.getById(user_id);
-		System.out.println("hi there :"+user.getName());
+	public User getById() {
+		return LocalDatabaseLogic.user.getById(uriInfo, user_id);
 		
 		// Debug for marshalling
 		/*
@@ -82,25 +70,18 @@ public class UserResource {
 			e.printStackTrace();
 		}
 		*/
-		
-		
-		return ParserFactory.user.toRest( user );
 	}
 	
 	@PUT
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public UserRest put(UserRest user) {
-		System.out.println("http put "+uriInfo.getPath());
-		User user_dao = ParserFactory.user.toDao(user);
-		user_dao.setId(user_id);
-		return ParserFactory.user.toRest( DaoFactory.user.update(user_dao) );
+	public User put(User user) {
+		return LocalDatabaseLogic.user.put(uriInfo, user, user_id);
 	}
 	
 	@DELETE
 	public void delete() {
-		System.out.println("http delete "+uriInfo.getPath());
-		DaoFactory.user.remove( DaoFactory.user.getById(user_id) );
+		LocalDatabaseLogic.user.delete(uriInfo, user_id);
 	}
 	
 	
@@ -112,22 +93,15 @@ public class UserResource {
 	@Path("/record")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public RecordCollectionRest getAllRecords() {
-		System.out.println("http get "+uriInfo.getPath());
-		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
-		param.putSingle("user_id", String.valueOf(user_id) );
-		return ParserFactory.record.toRest( DaoFactory.record.getAll( param ) );
+	public RecordCollection getAllRecords() {
+		return LocalDatabaseLogic.record.getAll(uriInfo, LocalDatabaseFilter.record.user_id(user_id));
 	}
 
 	@Path("/record")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(RecordRest record) {
-		System.out.println("http post "+uriInfo.getPath());
-		Record record_dao = ParserFactory.record.toDao(record);
-		record_dao.setUser( DaoFactory.user.getById(user_id) );
-		DaoFactory.record.save(record_dao);
-		return Response.created( URI.create( PathFactory.record().id(record_dao.getId()).getCompletePath() ) ).build();
+	public Response newEntry(Record record) {
+		return LocalDatabaseLogic.record.post(uriInfo, record, user_id);
 	}
 	
 	
@@ -139,22 +113,15 @@ public class UserResource {
 	@Path("/goal")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public GoalCollectionRest getAllGoals() {
-		System.out.println("http get "+uriInfo.getPath());
-		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
-		param.putSingle("user_id", String.valueOf(user_id) );
-		return ParserFactory.goal.toRest( DaoFactory.goal.getAll( param ) );
+	public GoalCollection getAllGoals() {
+		return LocalDatabaseLogic.goal.getAll(uriInfo, LocalDatabaseFilter.goal.user_id(user_id));
 	}
 
 	@Path("/goal")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(GoalRest goal) {
-		System.out.println("http post "+uriInfo.getPath());
-		Goal goal_dao = ParserFactory.goal.toDao(goal);
-		goal_dao.setUser( DaoFactory.user.getById(user_id) );
-		DaoFactory.goal.save(goal_dao);
-		return Response.created( URI.create( PathFactory.goal().id(goal_dao.getId()).getCompletePath() ) ).build();
+	public Response newEntry(Goal goal) {
+		return LocalDatabaseLogic.goal.post(uriInfo, goal, user_id);
 	}
 	
 	
@@ -166,22 +133,15 @@ public class UserResource {
 	@Path("/notification")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public NotificationCollectionRest getAllNotifications() {
-		System.out.println("http get "+uriInfo.getPath());
-		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
-		param.putSingle("user_id", String.valueOf(user_id) );
-		return ParserFactory.notification.toRest( DaoFactory.notification.getAll( param ) );
+	public NotificationCollection getAllNotifications() {
+		return LocalDatabaseLogic.notification.getAll(uriInfo, LocalDatabaseFilter.notification.user_id(user_id));
 	}
 
 	@Path("/notification")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(NotificationRest notification) {
-		System.out.println("http post "+uriInfo.getPath());
-		Notification notification_dao = ParserFactory.notification.toDao(notification);
-		notification_dao.setUser( DaoFactory.user.getById(user_id) );
-		DaoFactory.notification.save(notification_dao);
-		return Response.created( URI.create( PathFactory.goal().id(notification_dao.getId()).getCompletePath() ) ).build();
+	public Response newEntry(Notification notification) {
+		return LocalDatabaseLogic.notification.post(uriInfo, notification, user_id);
 	}
 	
 	
@@ -193,22 +153,15 @@ public class UserResource {
 	@Path("/todo")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public ToDoCollectionRest getAllToDos() {
-		System.out.println("http get "+uriInfo.getPath());
-		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
-		param.putSingle("user_id", String.valueOf(user_id) );
-		return ParserFactory.todo.toRest( DaoFactory.todo.getAll( param ) );
+	public ToDoCollection getAllToDos() {
+		return LocalDatabaseLogic.todo.getAll(uriInfo, LocalDatabaseFilter.todo.user_id(user_id));
 	}
 
 	@Path("/todo")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-	public Response newEntry(ToDoRest todo) {
-		System.out.println("http post "+uriInfo.getPath());
-		ToDo todo_dao = ParserFactory.todo.toDao(todo);
-		todo_dao.setUser( DaoFactory.user.getById(user_id) );
-		DaoFactory.todo.save(todo_dao);
-		return Response.created( URI.create( PathFactory.todo().id(todo_dao.getId()).getCompletePath() ) ).build();
+	public Response newEntry(ToDo todo) {
+		return LocalDatabaseLogic.todo.post(uriInfo, todo, user_id);
 	}
 	
 	

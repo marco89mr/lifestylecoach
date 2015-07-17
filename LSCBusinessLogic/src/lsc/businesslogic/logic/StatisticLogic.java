@@ -38,6 +38,20 @@ public class StatisticLogic {
 			intervals = 1;
 		}
 		
+		// Compose statistic
+		Statistic statistic = new Statistic();
+		statistic.setUserId( user_id );
+		statistic.setRecordType( record_type );
+		statistic.setFieldName( data_name );
+		statistic.setFromDate( from );
+		statistic.setToDate( to );
+		statistic.setOnInterval( on_interval );
+		statistic.setAverage( statistic._average() );
+		statistic.setCumulative( statistic._sum() );
+		statistic.setMax( statistic._max() );
+		statistic.setMin( statistic._min() );
+		
+		
 		// compute statistic datas
 		List<StatisticData> statisticDataList = new ArrayList<StatisticData>();
 		Date date = new Date();
@@ -61,19 +75,7 @@ public class StatisticLogic {
 			old_statistic_data = statisticData;
 		}
 		
-		// Compose statistic
-		Statistic statistic = new Statistic();
-		statistic.setUserId( user_id );
-		statistic.setRecordType( record_type );
-		statistic.setFieldName( data_name );
-		statistic.setFromDate( from );
-		statistic.setToDate( to );
-		statistic.setOnInterval( on_interval );
 		statistic.setDatas( statisticDataList );
-		statistic.setAverage( statistic._average() );
-		statistic.setCumulative( statistic._sum() );
-		statistic.setMax( statistic._max() );
-		statistic.setMin( statistic._min() );
 		
 		return statistic;
 	}
@@ -126,7 +128,7 @@ public class StatisticLogic {
 		StatisticData statisticData = new StatisticData();
 		statisticData.setFromDate( from );
 		statisticData.setToDate( to );
-		statisticData._initValues(null);
+		//statisticData._initValues(null);
 		completeTargetAbs( statisticData, data_collection );
 		completeTargetPerc(	statisticData, old );
 		completeIncrementAbs( statisticData, old );
@@ -157,7 +159,7 @@ public class StatisticLogic {
 		//elaborate TARGET ABS values
 		for(Goal.Function f : Goal.Function.values()){
 			double value = elaborateDataCollection(Function.average, data_collection);
-			statisticData.getValues().get(f).get(Reference.target).put(Perc.abs, value);
+			statisticData.getValues().get(f).get(Reference.target).put(Perc.abs, Float.valueOf(Double.toString(value)));
 		}
 	}
 	
@@ -167,7 +169,7 @@ public class StatisticLogic {
 			double value = statisticData.getValues().get(f).get(Reference.target).get(Perc.abs)
 							/ old.getValues().get(f).get(Reference.target).get(Perc.abs)
 							* 100;
-			statisticData.getValues().get(f).get(Reference.target).put(Perc.perc, value);
+			statisticData.getValues().get(f).get(Reference.target).put(Perc.perc, Float.valueOf(Double.toString(value)));
 		}
 	}
 	
@@ -176,7 +178,7 @@ public class StatisticLogic {
 		for(Goal.Function f : Goal.Function.values()){
 			double value = statisticData.getValues().get(f).get(Reference.target).get(Perc.abs)
 							- old.getValues().get(f).get(Reference.target).get(Perc.abs);
-			statisticData.getValues().get(f).get(Reference.increment).put(Perc.abs, value);
+			statisticData.getValues().get(f).get(Reference.increment).put(Perc.abs, Float.valueOf(Double.toString(value)));
 		}
 	}
 	
@@ -186,7 +188,7 @@ public class StatisticLogic {
 			double value = statisticData.getValues().get(f).get(Reference.increment).get(Perc.abs)
 							/ old.getValues().get(f).get(Reference.target).get(Perc.abs)
 							* 100 ;
-			statisticData.getValues().get(f).get(Reference.increment).put(Perc.perc, value);
+			statisticData.getValues().get(f).get(Reference.increment).put(Perc.perc, Float.valueOf(Double.toString(value)));
 		}
 	}
 	

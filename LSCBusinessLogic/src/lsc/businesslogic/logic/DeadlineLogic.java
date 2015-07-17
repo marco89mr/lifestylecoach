@@ -9,23 +9,46 @@ import lsc.storage.rest.client.StorageClient;
 
 
 public class DeadlineLogic {
-
-
+	
+	
+	
 	
 	
 	// accepts only deadline with status active
 	// return true if status is changed to succeeded
 	// if status remains unchanged it returns false
-	public static boolean updateDeadlineActualValueAndStatus(Deadline deadline, Goal goal) {
+	public static boolean updateValueAndStatusNotifyThenPost(Deadline deadline, Goal goal) {
 		// check status
 		if(deadline.getStatus()!=Status.active)
 			return false;
 		
-		// actual_value
-		computeDeadlineActualValue(deadline, goal);
-		double actual_value = Double.parseDouble( deadline.getActualValue() );
+		DeadlineLogic.updateDeadlineActualValue(deadline, goal);
 		
-		// target_value
+		boolean result = DeadlineLogic.updateDeadlineStatus(deadline, goal);
+		
+		// notification
+		if(result)
+			NotificationLogic.postNewNotification(	goal.getUserId(),
+													deadline.getId(),
+													"deadline",
+													"Good, deadline suceeded: "+"DEADLINEtoTEXT" );
+		return result;
+	}
+	
+	
+	
+	
+	
+	// accepts only deadline with status active
+	// return true if status is changed to succeeded
+	// if status remains unchanged it returns false
+	private static boolean updateDeadlineStatus(Deadline deadline, Goal goal) {
+		// check status
+		if(deadline.getStatus()!=Status.active)
+			return false;
+		
+		// actual_value & target_value
+		double actual_value = Double.parseDouble( deadline.getActualValue() );
 		double target_value = Double.parseDouble( goal.getValue() );
 		
 		// test goal
@@ -40,12 +63,7 @@ public class DeadlineLogic {
 		deadline.setActualValue( ""+actual_value );
 		deadline.setStatus(( result ? Status.succeeded : Status.active ));
 		StorageClient.deadline.put(deadline);
-		// notification
-		if(result)
-			NotificationLogic.postNewNotification(	goal.getUserId(),
-													deadline.getId(),
-													"deadline",
-													"Good, deadline suceeded: "+"DEADLINEtoTEXT" );
+		
 		return result;
 	}
 	
@@ -53,9 +71,9 @@ public class DeadlineLogic {
 	
 	
 	
-	private static void computeDeadlineActualValue(Deadline deadline, Goal goal) {
+	private static void updateDeadlineActualValue(Deadline deadline, Goal goal) {
 		Statistic stat = computeDeadlineStatistic(deadline, goal);
-		Double actual_value = stat.getDatas().get(0).getValues()
+		Float actual_value = stat.getDatas().get(0).getValues()
 				.get(goal.getFunction())
 				.get(goal.getReference())
 				.get(goal.getPerc());

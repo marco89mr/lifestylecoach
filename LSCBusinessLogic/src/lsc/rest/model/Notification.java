@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
-@XmlType(name = "notification", propOrder = { "id", "userId", "date", "message", "type", "status", "deadlineId" })
+//@XmlType(name = "notification", propOrder = { "id", "userId", "date", "message", "type", "status", "deadlineId" })
 @XmlRootElement(name="notification")
 public class Notification extends Base {
 

@@ -3,11 +3,14 @@ package lsc.businesslogic.ws;
 import javax.jws.WebService;
 
 import lsc.businesslogic.logic.DeadlineLogic;
+import lsc.businesslogic.logic.GoalLogic;
+import lsc.businesslogic.logic.NotificationLogic;
 import lsc.businesslogic.logic.StatisticLogic;
 import lsc.rest.filter.Filter;
 import lsc.rest.model.Deadline;
 import lsc.rest.model.Deadline.Status;
 import lsc.rest.model.DeadlineCollection;
+import lsc.rest.model.Goal;
 import lsc.rest.model.Goal.Function;
 import lsc.rest.model.Goal.Interval;
 import lsc.rest.model.NotificationCollection;
@@ -25,8 +28,17 @@ public class LSCLogicImpl implements LSCLogic {
 	
 	
 	@Override
-	public NotificationCollection check_record(RecordComplex record) {
-		System.out.println("SOAP check_record("+record.getId()+")");
+	public void autoStartGoalNow(Goal goal) {
+		System.out.println("SOAP autoStartGoalNow("+goal.getId()+")");
+		GoalLogic.autoStartGoalNow(goal);
+	}
+	
+	
+	
+	
+	@Override
+	public NotificationCollection updateStatusByRecord(RecordComplex record) {
+		System.out.println("SOAP updateStatusByRecord("+record.getId()+")");
 		DeadlineCollection deadlineCollection
 			= StorageClient.deadline.getAll(Filter.deadline
 											.record_type( record.getType() )
@@ -34,7 +46,7 @@ public class LSCLogicImpl implements LSCLogic {
 											.user_id(record.getUserId())
 											.status(Status.active)		);
 		for(Deadline d : deadlineCollection)
-			DeadlineLogic.updateDeadlineActualValueAndStatus(d, StorageClient.goal.getById(d.getGoalId()));
+			DeadlineLogic.updateValueAndStatusNotifyThenPost(d, StorageClient.goal.getById(d.getGoalId()));
 		return null;
 	}
 	
@@ -43,9 +55,9 @@ public class LSCLogicImpl implements LSCLogic {
 	
 	
 	@Override
-	public NotificationCollection check_deadline(Deadline deadline) {
-		System.out.println("SOAP check_deadline("+deadline.getId()+")");
-		DeadlineLogic.updateDeadlineActualValueAndStatus(deadline, StorageClient.goal.getById(deadline.getGoalId()));
+	public NotificationCollection updateStatusByDeadline(Deadline deadline) {
+		System.out.println("SOAP updateStatusByDeadline("+deadline.getId()+")");
+		DeadlineLogic.updateValueAndStatusNotifyThenPost(deadline, StorageClient.goal.getById(deadline.getGoalId()));
 		return null;
 	}
 	
@@ -54,14 +66,20 @@ public class LSCLogicImpl implements LSCLogic {
 	
 	
 	@Override
-	public NotificationCollection check_today(User user) {
-		System.out.println("SOAP check_today("+user.getId()+")");
+	public NotificationCollection checkToday(User user) {
+		System.out.println("SOAP checkToday("+user.getId()+")");
 		DeadlineCollection deadlineCollection
 			= StorageClient.deadline.getAll(Filter.deadline
 											.user_id(user.getId())
 											.status(Status.active)		);
-		for(Deadline d : deadlineCollection)
-			DeadlineLogic.updateDeadlineActualValueAndStatus(d, StorageClient.goal.getById(d.getGoalId()));
+		for(Deadline d : deadlineCollection) {
+			Goal goal = StorageClient.goal.getById(d.getGoalId());
+			DeadlineLogic.updateValueAndStatusNotifyThenPost(d, goal);
+			GoalLogic.manageExpiredDeadline(
+				goal,
+				StorageClient.deadline.getAll( Filter.deadline.goal_id(goal.getId()) )
+			);
+		}
 		return null;
 	}
 	
@@ -70,12 +88,15 @@ public class LSCLogicImpl implements LSCLogic {
 	
 	
 	@Override
-	public Statistic compute_statistic(int user_id, String record_type, String data_name,
+	public Statistic computeStatistic(int user_id, String record_type, String data_name,
 			String from, String to, Interval on_interval, Function function) {
 		return StatisticLogic.computeCompleteStatistic
 				( user_id, record_type, data_name, from, to, on_interval );
 	}
 	
+
+
+
 	
 	
 	

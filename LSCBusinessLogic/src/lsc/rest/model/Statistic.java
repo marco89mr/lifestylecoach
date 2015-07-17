@@ -149,9 +149,7 @@ public class Statistic extends Base {
 	
 	
 	
-	
-	
-	
+
 	
 
     
@@ -162,8 +160,8 @@ public class Statistic extends Base {
 			for(Goal.Function f : Goal.Function.values())
 				for(Goal.Reference r : Goal.Reference.values())
 					for(Goal.Perc p : Goal.Perc.values()) {
-						double now = d.getValues().get(f).get(r).get(p);
-						double since = sum.getValues().get(f).get(r).get(p);
+						Float now = d.getValues().get(f).get(r).get(p);
+						Float since = sum.getValues().get(f).get(r).get(p);
 						sum.getValues().get(f).get(r).put(p, since + now );
 					}
 		return sum;
@@ -176,7 +174,7 @@ public class Statistic extends Base {
 		for(Goal.Function f : Goal.Function.values())
 			for(Goal.Reference r : Goal.Reference.values())
 				for(Goal.Perc p : Goal.Perc.values()) {
-					double s = sum.getValues().get(f).get(r).get(p);
+					Float s = sum.getValues().get(f).get(r).get(p);
 					avg.getValues().get(f).get(r).put(p, s / datas.size() );
 				}
 		return avg;
@@ -189,8 +187,8 @@ public class Statistic extends Base {
 			for(Goal.Function f : Goal.Function.values())
 				for(Goal.Reference r : Goal.Reference.values())
 					for(Goal.Perc p : Goal.Perc.values()) {
-						Double now = d.getValues().get(f).get(r).get(p);
-						Double since = max.getValues().get(f).get(r).get(p);
+						Float now = d.getValues().get(f).get(r).get(p);
+						Float since = max.getValues().get(f).get(r).get(p);
 						if( since==null || now > since)
 							max.getValues().get(f).get(r).put(p, now );
 					}
@@ -204,14 +202,14 @@ public class Statistic extends Base {
 			for(Goal.Function f : Goal.Function.values())
 				for(Goal.Reference r : Goal.Reference.values())
 					for(Goal.Perc p : Goal.Perc.values()) {
-						Double now = d.getValues().get(f).get(r).get(p);
-						Double since = min.getValues().get(f).get(r).get(p);
+						Float now = d.getValues().get(f).get(r).get(p);
+						Float since = min.getValues().get(f).get(r).get(p);
 						if( since==null || now < since)
 							min.getValues().get(f).get(r).put(p, now );
 					}
 		return min;
 	}
-
+    
 
 
 

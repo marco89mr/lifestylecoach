@@ -31,7 +31,7 @@ public class TestApp{
         
 		//lscLogic.register_record( new RecordData() );
         
-        
+        /*
         Statistic s = lscLogic.compute_statistic(1, "run", "distance", "2015-01-01", "2015-01-20", Goal.Interval.day, Goal.Function.sum);
 
         for(StatisticData d : s.getDatas()){
@@ -39,7 +39,7 @@ public class TestApp{
         	System.out.println(d.getToDate());
         	System.out.println(d.getValues().get(Function.sum).get(Reference.target).get(Perc.abs));
         }
-        
+        */
         
 	}
 	

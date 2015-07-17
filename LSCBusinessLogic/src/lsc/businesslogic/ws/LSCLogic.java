@@ -22,33 +22,40 @@ public interface LSCLogic {
 	
 	
 	
-    @WebMethod(operationName="check_record")
+    @WebMethod(operationName="autoStartGoalNow")
     @WebResult(name="NotificationCollection")
-    public NotificationCollection check_record(	@WebParam(name="record") 	RecordComplex record	);
-    
-    
-    
-    @WebMethod(operationName="check_deadline")
+    public void autoStartGoalNow(				@WebParam(name="goal") 	Goal goal 					);
+	
+	
+	
+    @WebMethod(operationName="updateStatusByRecord")
     @WebResult(name="NotificationCollection")
-    public NotificationCollection check_deadline(@WebParam(name="deadline") Deadline deadline		);
+    public NotificationCollection updateStatusByRecord(	@WebParam(name="record") 	RecordComplex record	);
     
     
     
-    @WebMethod(operationName="check_today")
+    @WebMethod(operationName="updateStatusByDeadline")
     @WebResult(name="NotificationCollection")
-    public NotificationCollection check_today(	@WebParam(name="user")		User user				);
+    public NotificationCollection updateStatusByDeadline(@WebParam(name="deadline") Deadline deadline			);
     
     
     
-    @WebMethod(operationName="compute_statistic")
+    @WebMethod(operationName="checkToday")
+    @WebResult(name="NotificationCollection")
+    public NotificationCollection checkToday(	@WebParam(name="user")		User user				);
+    
+    
+    
+    @WebMethod(operationName="computeStatistic")
     @WebResult(name="Statistic")
-    public Statistic compute_statistic(			@WebParam(name="user_id")		int user_id,
+    public Statistic computeStatistic(			@WebParam(name="user_id")		int user_id,
 	    										@WebParam(name="record_type")	String record_type,
 	    										@WebParam(name="field_name")	String field_name,
 	    										@WebParam(name="from")			String from,
 	    										@WebParam(name="to") 			String to,
 	    										@WebParam(name="on_interval")	Interval on_interval,
 	    										@WebParam(name="function")		Goal.Function function	);
+    
     
     
 }

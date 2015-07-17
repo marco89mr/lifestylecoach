@@ -15,7 +15,7 @@ public class GoalLogic {
 	
 	
 	
-	public void autoStartGoalNow(Goal goal) {
+	public static Deadline autoStartGoalNow(Goal goal) {
 		// AUTO START NEW GOAL
 		if( goal.getRepeat()!=Interval.fixed ) {
 			Date now = new Date();
@@ -26,20 +26,27 @@ public class GoalLogic {
 			deadline.setEndDate(Base._formatDate(end));
 			deadline.setStatus(Status.active);
 			deadline.setGoalId(goal.getId());
-			DeadlineLogic.updateDeadlineActualValueAndStatus(deadline, goal);
+			DeadlineLogic.updateValueAndStatusNotifyThenPost(deadline, goal);
 			StorageClient.deadline.post(deadline);
+			NotificationLogic.postNewNotification(
+					goal.getUserId(),
+					deadline.getId(),
+					"new deadline",
+					"News, you have now a new deadline for accomplish your goal: "+"DEADLINEtoTEXT"	);
+			return deadline;
 		}
+		return null;
 	}
 	
 	
-	
-	public void manageExpiredDeadline(Goal goal, DeadlineCollection deadlines) {
-		// CLOSE PASSED DEADLINE AND START A NEW ONE
+
+	// CLOSE PASSED DEADLINE AND START A NEW ONE
+	public static void manageExpiredDeadline(Goal goal, DeadlineCollection deadlines) {
 		Deadline last = deadlines.get( deadlines.size()-1 );
 		Date now = new Date();
 		Date end = Base._parseDate( last.getEndDate() );
 		if( last.getStatus()==Status.active && now.after(end) ){
-			DeadlineLogic.updateDeadlineActualValueAndStatus(last, goal);
+			DeadlineLogic.updateValueAndStatusNotifyThenPost(last, goal);
 			if( goal.getRepeat() != Interval.fixed ) {
 				Date new_end = new Date();
 				new_end.setTime( now.getTime() + goal.getRepeat().getMs() );

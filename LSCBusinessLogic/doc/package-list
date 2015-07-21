@@ -1,0 +1,8 @@
+lsc.businesslogic.client
+lsc.businesslogic.endpoint
+lsc.businesslogic.logic
+lsc.businesslogic.ws
+lsc.rest.client
+lsc.rest.filter
+lsc.rest.model
+lsc.storage.rest.client

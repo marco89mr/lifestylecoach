@@ -21,7 +21,7 @@ public class Record extends Base {
 	private int user_id;
 	
 	private String type;
-
+	
 	private String date;
 	
 	

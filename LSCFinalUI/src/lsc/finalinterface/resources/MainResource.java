@@ -1,5 +1,14 @@
 package lsc.finalinterface.resources;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+
 import javax.ejb.*;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,6 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import lsc.finalinterface.logic.FinalInterfaceLogic;
@@ -37,6 +47,19 @@ public class MainResource {
 	UriInfo uriInfo;
 	@Context
 	Request request;
+	
+	
+	
+	@Path("/web")
+	@GET
+	@Produces({MediaType.TEXT_HTML})
+	public InputStream web() throws IOException
+	{
+		System.out.println("GET /web");
+		File f = new File("WebContent/finalinterfaceWebApp.html");
+	    System.out.println("Il doc si trova nel percorso" + f.toURL());
+		return new FileInputStream(f);
+	}
 	
 	
 	

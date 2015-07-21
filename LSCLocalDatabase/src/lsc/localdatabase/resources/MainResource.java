@@ -1,5 +1,10 @@
 package lsc.localdatabase.resources;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.ejb.*;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -47,6 +52,18 @@ public class MainResource {
 	UriInfo uriInfo;
 	@Context
 	Request request;
+	
+	
+	
+	@Path("/web")
+	@GET
+	@Produces({MediaType.TEXT_HTML})
+	public InputStream web() throws IOException
+	{
+		System.out.println("GET /web");
+		File f = new File("WebContent/localDatabaseWebApp.html");
+		return new FileInputStream(f);
+	}
 	
 	
 	

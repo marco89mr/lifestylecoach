@@ -13,6 +13,10 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 import lsc.localdatabase.rest.client.LocalDatabaseClient;
@@ -46,6 +50,18 @@ public class MainResource {
 	UriInfo uriInfo;
 	@Context
 	Request request;
+	
+	
+	
+	@Path("/web")
+	@GET
+	@Produces({MediaType.TEXT_HTML})
+	public InputStream web() throws IOException
+	{
+		System.out.println("GET /web");
+		File f = new File("WebContent/storageWebApp.html");
+		return new FileInputStream(f);
+	}
 	
 	
 	

@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
  * The persistent class for the "record" database table.
  * 
  */
-@XmlType(name = "record", propOrder = { "id", "userId", "type", "date", "data" })
+//@XmlType(name = "record", propOrder = { "id", "userId", "type", "date", "data" })
 @XmlRootElement(name="record")
 public class RecordComplex extends Base {
 

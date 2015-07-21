@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="http://demos.telerik.com/kendo-ui/grid/editing-inline">
+    <style>html { font-size: 14px; font-family: Arial, Helvetica, sans-serif; }</style>
+    <title></title>
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.2.624/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.2.624/styles/kendo.material.min.css" />
+
+    <script src="http://cdn.kendostatic.com/2015.2.624/js/jquery.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2015.2.624/js/kendo.all.min.js"></script>
+</head>
+<body>
+        <div id="example">
+        	<form>
+				User:<br>
+				<input id="user" type="text" name="user">
+				<br>
+				Password:<br>
+				<input id="password" type="password" name="password">
+				Id:
+				./lsc/user/<input id="id" type="text" name="id">
+				<button type="button" onclick="$('#grid').data('kendoGrid').dataSource.read()">GET</button>
+			</form>
+            <div id="grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                	
+                    var crudServiceBaseUrl = "http://localhost:8000/lsc/user/1",
+                        dataSource = new kendo.data.DataSource({
+                            transport: {
+                                read:  {
+                                    url: crudServiceBaseUrl,
+                                    dataType: "xml"
+                                },
+                                update: {
+                                    url: crudServiceBaseUrl + "/Products/Update",
+                                    dataType: "xml",
+                                    type: "PUT"
+                                },
+                                destroy: {
+                                    url: crudServiceBaseUrl + "/Products/Destroy",
+                                    dataType: "xml",
+                                    type: "DELETE"
+                                },
+                                create: {
+                                    url: crudServiceBaseUrl + "/Products/Create",
+                                    dataType: "xml",
+                                    type: "POST"
+                                },
+                                parameterMap: function(options, operation) {
+                                	var params = {
+                            			user: document.getElementById("user").value,
+                                    	password: document.getElementById("password").value
+                                	};
+                                    if (operation !== "read" && options.models) {
+                                        return {models: kendo.stringify(options.models)};
+                                    }
+                                    else if()
+                                	return params;
+                                }
+                            },
+                            schema: {
+                                type: "xml",
+                            	data: "/user",
+                                model: {
+                                    id: "id/text()",
+                                    fields: {
+                                        id: "id/text()",
+                                        name: "name/text()",
+                                        mail: "mail/text()",
+                                        password: "password/text()",
+                                        birthdate: "birthdate/text()"
+                                    }
+                                }
+                            }
+                        });
+
+                    $("#grid").kendoGrid({
+                   	    autoBind: false,
+                        dataSource: dataSource,
+                        //height: 550,
+                        toolbar: ["create"],
+                        columns: [
+                            { field: "id", title: "Id", width: "40px" },
+                            { field: "name", title: "Name", width: "230px" },
+                            { field: "mail", title: "Mail", width: "250px" },
+                            { field: "password", width: "180px" },
+                            "birthdate",
+                            { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                        editable: "inline"
+                    });
+                });
+            </script>
+        </div>
+
+
+</body>
+</html>

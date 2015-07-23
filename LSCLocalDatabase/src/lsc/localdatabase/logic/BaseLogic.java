@@ -47,6 +47,12 @@ public abstract class BaseLogic <	M extends Base,
 		MultivaluedMap<String,String> param = MultivaluedMapImpl.clone( uriInfo.getQueryParameters() );
 		for(String key : filter.getFilter().keySet())
 			param.putSingle( key, filter.getFilter().get(key) );
+		
+		System.out.println("DEBUG data_access().getAll(param) param:");
+		if(param!=null)
+			for(String key : param.keySet())
+				System.out.println("DEBUG " + key + ": " + param.get(key));
+		
 		DD dao_collection = data_access().getAll(param);
 		if(dao_collection==null)
 			System.out.println("ERROR Logic.getAll no data retrieved from db");
@@ -69,7 +75,7 @@ public abstract class BaseLogic <	M extends Base,
 		D dao = parser().toDao( entity );
 		data_access().save( dao );
 		//entity = parser().toRest( dao );
-		URI uri = URI.create( LocalDatabaseClient.data.resource_url() +"/"+ dao.getId() );
+		URI uri = URI.create( client().resource_url() +"/"+ dao.getId() );
 		return Response.created( uri ).build();
 	}
 	

@@ -66,11 +66,11 @@ public class LSCLogicImpl implements LSCLogic {
 	
 	
 	@Override
-	public NotificationCollection checkToday(User user) {
-		System.out.println("SOAP checkToday("+user.getId()+")");
+	public NotificationCollection checkToday(int user_id) {
+		System.out.println("SOAP checkToday("+user_id+")");
 		DeadlineCollection deadlineCollection
 			= StorageClient.deadline.getAll(Filter.deadline
-											.user_id(user.getId())
+											.user_id(user_id)
 											.status(Status.active)		);
 		for(Deadline d : deadlineCollection) {
 			Goal goal = StorageClient.goal.getById(d.getGoalId());
@@ -80,7 +80,7 @@ public class LSCLogicImpl implements LSCLogic {
 				StorageClient.deadline.getAll( Filter.deadline.goal_id(goal.getId()) )
 			);
 		}
-		return null;
+		return StorageClient.notification.getAll( Filter.notification );
 	}
 	
 	

@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
-@XmlType(name = "Deadline", propOrder = { "id", "goalId", "startDate", "endDate", "status", "actualValue" })
+//@XmlType(name = "Deadline", propOrder = { "id", "goalId", "startDate", "endDate", "status", "actualValue" })
 @XmlRootElement(name="deadline")
 public class Deadline extends Base {
 

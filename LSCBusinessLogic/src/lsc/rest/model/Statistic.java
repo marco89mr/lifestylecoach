@@ -156,6 +156,9 @@ public class Statistic extends Base {
 	public StatisticData _sum() {
 		StatisticData sum = new StatisticData();
 		sum._initValues(0.0);
+		if(datas == null) {
+			return sum;
+		}
 		for(StatisticData d : datas)
 			for(Goal.Function f : Goal.Function.values())
 				for(Goal.Reference r : Goal.Reference.values())
@@ -171,6 +174,9 @@ public class Statistic extends Base {
 		StatisticData sum = _sum();
 		StatisticData avg = new StatisticData();
 		avg._initValues(0.0);
+		if(datas == null) {
+			return avg;
+		}
 		for(Goal.Function f : Goal.Function.values())
 			for(Goal.Reference r : Goal.Reference.values())
 				for(Goal.Perc p : Goal.Perc.values()) {
@@ -183,6 +189,9 @@ public class Statistic extends Base {
 	public StatisticData _max() {
 		StatisticData max = new StatisticData();
 		max._initValues(null);
+		if(datas == null) {
+			return max;
+		}
 		for(StatisticData d : datas)
 			for(Goal.Function f : Goal.Function.values())
 				for(Goal.Reference r : Goal.Reference.values())
@@ -198,6 +207,9 @@ public class Statistic extends Base {
 	public StatisticData _min() {
 		StatisticData min = new StatisticData();
 		min._initValues(null);
+		if(datas == null) {
+			return min;
+		}
 		for(StatisticData d : datas)
 			for(Goal.Function f : Goal.Function.values())
 				for(Goal.Reference r : Goal.Reference.values())

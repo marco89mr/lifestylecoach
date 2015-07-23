@@ -225,7 +225,7 @@ public class MainResource {
 		System.out.println("A");
 		System.out.println(dao_collection.size());
 		NotificationCollection model_collection = LocalDatabaseParser.notification.toRest( dao_collection );
-
+		
 		System.out.println("0");
 		// Debug for marshalling
 		JAXBContext jc = null;

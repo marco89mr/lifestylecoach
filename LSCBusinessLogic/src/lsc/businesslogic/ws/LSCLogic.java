@@ -42,7 +42,7 @@ public interface LSCLogic {
     
     @WebMethod(operationName="checkToday")
     @WebResult(name="NotificationCollection")
-    public NotificationCollection checkToday(	@WebParam(name="user")		User user				);
+    public NotificationCollection checkToday(	@WebParam(name="user_id")		int user_id				);
     
     
     

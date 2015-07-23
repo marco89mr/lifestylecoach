@@ -4,11 +4,11 @@
     <base href="http://demos.telerik.com/kendo-ui/grid/editing-inline">
     <style>html { font-size: 14px; font-family: Arial, Helvetica, sans-serif; }</style>
     <title></title>
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.2.624/styles/kendo.common-material.min.css" />
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.2.624/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="http://localhost:8080/kendo/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://localhost:8080/kendo/styles/kendo.material.min.css" />
 
-    <script src="http://cdn.kendostatic.com/2015.2.624/js/jquery.min.js"></script>
-    <script src="http://cdn.kendostatic.com/2015.2.624/js/kendo.all.min.js"></script>
+    <script src="http://localhost:8080/kendo/js/jquery.min.js"></script>
+    <script src="http://localhost:8080/kendo/js/kendo.all.min.js"></script>
 </head>
 <body>
         <div id="main">
@@ -32,6 +32,7 @@
 			
 			
         <div id="user-div">
+        	<h2>User Profile</h2>
 			<button type="button" onclick="$('#user-grid').data('kendoGrid').dataSource.read()">GET user</button>
             <div id="user-grid"></div>
             <script>
@@ -81,11 +82,11 @@
                                 model: {
                                     id: "id",
                                     fields: {
-                                        id: {},
+                                        id: {editable: false},
                                         name: {},
                                         mail: {},
-                                        password: {},
-                                        birthdate: {}
+                                        password: { },
+                                        birthdate: { type: "date" }
                                     }
                                 }
                             }
@@ -99,7 +100,7 @@
                             { field: "name", title: "Name", width: "230px" },
                             { field: "mail", title: "Mail", width: "250px" },
                             { field: "password", width: "180px" },
-                            "birthdate",
+                            { field: "birthdate", format: "{0: yyyy-MM-dd}", width: "180px" },
                             { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
                         editable: "inline"
                     });
@@ -119,29 +120,236 @@
         
         
         <div id="record-div">
+        	<h2>User Records</h2>
         	<button type="button" onclick="$('#record-grid').data('kendoGrid').dataSource.read()">GET /lsc/record</button>
             <div id="record-grid"></div>
-
+			
             <script>
                 $(document).ready(function () {
                 	
-                	var crudServiceBaseUrl = "http://localhost:8000/lsc/user",
+                	var crudServiceBaseUrl = "http://localhost:8000/lsc",
+	                	authParams = "user="+document.getElementById("user").value
+	      							+"&password="+document.getElementById("password").value,
 	                	urlWithId = function(options) {
 	                        return crudServiceBaseUrl
-	                    		+"/"+document.getElementById("id").value
-	                        	+"/record"
-	                        	+"/"+options.id
-	                        	+"?user="+document.getElementById("user").value
-	                        	+"&password="+document.getElementById("password").value;
+	                        	+"/record/"+options.id
+	                        	+"?"+authParams;
 	                    },
 	                	urlBase = function(options) {
 	                        return crudServiceBaseUrl
-	                			+"/"+document.getElementById("id").value
-	                        	+"/record"
-	                        	+"?user="+document.getElementById("user").value
-	                        	+"&password="+document.getElementById("password").value;
-		                    },
+	                        	+"/user/"+document.getElementById("id").value+"/record"
+	                        	+"?"+authParams;
+	                    },
 	                    dataSource = new kendo.data.DataSource({
+	                        transport: {
+	                            read:  {
+	                                url: urlBase,
+	                                dataType: "json"
+	                            },
+	                            update: {
+	                                url: urlWithId,
+	                                dataType: "json",
+	                                contentType: "application/json",
+	                                type: "PUT"
+	                            },
+	                            destroy: {
+	                                url: urlWithId,
+	                                type: "DELETE"
+	                            },
+	                            create: {
+	                                url: urlBase,
+	                                dataType: "json",
+	                                type: "POST",
+	                                contentType: "application/json"
+	                            },
+	                            parameterMap: function(options, operation) {
+	                            	if (operation == "update" || operation == "create") {
+	                            		var obj = {
+                               				id: options.id,
+                               				userId: options.userId,
+                               				type: options.type,
+                               				date: options.date,
+                               				data: JSON.parse(options.data)
+                               			}
+	                            		return kendo.stringify(obj);
+	                                }
+	                            }
+	                        },
+                            schema: {
+                            	parse: function(response) {
+                                	var records = [];
+                                    for (var i = 0; i < response.length; i++) {
+                                    	var r = {
+	                                        id: response[i].id,
+	                                        userId: response[i].userId,
+	                                        type: response[i].type,
+	                                        date: response[i].date,
+	                                        data: kendo.stringify(response[i].data)
+                                      	};
+                                    	records.push(r);
+                                    }
+                                    return records;
+                                },
+	                        	model: {
+                                    id: "id",
+                                    fields: {
+                                        id: {editable: false},
+                                        userId: {editable: false},
+                                        type: {},
+                                        date: { type: "date" },
+                                        _data: { field:"data" }
+                                    }
+                                }
+                            },
+	                        group: [{field: "type"}],
+                            sort: [{ field: "date", dir: "desc" }]
+                        });
+
+                    $("#record-grid").kendoGrid({
+                   	    autoBind: false,
+                        dataSource: dataSource,
+                        toolbar: ["create"],
+                        columns: [
+                            { field: "id", title: "Id", width: "80px" },
+                            { field: "userId", title: "userId", width: "130px" },
+                            { field: "type", title: "type", width: "250px" },
+                            { field: "date", format: "{0: yyyy-MM-dd}", width: "180px" },
+                            { field: "_data" },
+                            { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                        editable: "inline",
+                        sortable: true
+                    });
+                });
+            </script>
+        </div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+        <div id="goal-div">
+        	<h2>User Goals</h2>
+			<button type="button" onclick="$('#goal-grid').data('kendoGrid').dataSource.read()">GET goal</button>
+            <div id="goal-grid"></div>
+            <script>
+                $(document).ready(function () {
+                	
+                	
+                	
+                    var crudServiceBaseUrl = "http://localhost:8000/lsc",
+	                	authParams = "user="+document.getElementById("user").value
+							+"&password="+document.getElementById("password").value,
+                    	urlWithId = function(options) {
+	                        return crudServiceBaseUrl
+	                        	+"/goal"+"/"+options.id
+	                        	+"?"+authParams;
+	                    },
+                    	urlBase = function(options) {
+	                        return crudServiceBaseUrl
+                    			+"/user/"+document.getElementById("id").value+"/goal"
+	                        	+"?"+authParams;
+	                    },
+                        dataSource = new kendo.data.DataSource({
+                            transport: {
+                                read:  {
+                                    url: urlBase,
+                                    dataType: "json"
+                                },
+                                update: {
+                                    url: urlWithId,
+                                    dataType: "json",
+                                    contentType: "application/json",
+                                    type: "PUT"
+                                },
+                                destroy: {
+                                    url: urlWithId,
+                                    type: "DELETE"
+                                },
+                                create: {
+                                    url: urlBase,
+                                    dataType: "json",
+                                    type: "POST",
+                                    contentType: "application/json"
+                                },
+                                parameterMap: function(options, operation) {
+                                	if (operation == "update" || operation == "create") {
+                                    	return kendo.stringify(options);
+                                    }
+                                }
+                            },
+                            schema: {
+                                model: {
+                                    id: "id",
+                                    fields: {
+                                        id: {editable: false},
+                                        userId: {editable: false},
+                                        recordType: "recordType",
+                                        dataName: "dataName",
+                                        value: "value",
+                                        operator: {defaultValue: "larger", validation: { required: true } },
+                                        _function: { field: "function", defaultValue: "sum", validation: { required: true } },
+                                        reference: {defaultValue: "target", validation: { required: true } },
+                                        perc: {defaultValue: "abs", validation: { required: true } },
+                                        repeat: {defaultValue: "fixed", validation: { required: true } },
+                                        days: "days"
+                                    }
+                                }
+                            },
+	                        group: [{field: "recordType"}]
+                        });
+
+                    $("#goal-grid").kendoGrid({
+                   	    autoBind: false,
+                        dataSource: dataSource,
+                        detailInit: deadlineInit,
+                        dataBound: function() {
+                            this.expandRow(this.tbody.find("tr.k-master-row").first());
+                        },
+                        toolbar: [ { name: "create", text: "Add Goal" } ],
+                        columns: [
+                            { field: "id", title: "Id", width: "80px" },
+                            { field: "userId", width: "130px" },
+                            { field: "recordType", width: "250px" },
+                            { field: "dataName", width: "180px" },
+                            "value",
+                            { field: "operator", values: ["larger", "smaller", "equals"] },
+                            { field: "_function", values: ["average", "sum", "max", "min", "last", "first"] },
+                            { field: "reference", values: ["target", "increment", "decrement"] },
+                            { field: "perc", values: ["abs", "perc"] },
+                            { field: "repeat", values: ["fixed", "day", "week", "month", "year"] },
+                            "days",
+                            { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                        editable: "inline"
+                    });
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    dataSource = function(goalId) {
+                        var crudServiceBaseUrl = "http://localhost:8000/lsc",
+	                    	authParams = "user="+document.getElementById("user").value
+	    						+"&password="+document.getElementById("password").value,
+	                    	urlWithId = function(options) {
+	                            return crudServiceBaseUrl
+	                            	+"/deadline"+"/"+options.id
+	                            	+"?"+authParams;
+	                        },
+	                    	urlBase = function(options) {
+	                            return crudServiceBaseUrl
+	                    			+"/goal/"+goalId+"/deadline"
+	                            	+"?"+authParams;
+	                        };
+                    	return new kendo.data.DataSource({
 	                        transport: {
 	                            read:  {
 	                                url: urlBase,
@@ -169,31 +377,39 @@
 	                                }
 	                            }
 	                        },
-                            schema: {
-                                model: {
-                                    id: "id",
-                                    fields: {
-                                        id: {},
-                                        userId: {},
-                                        type: {},
-                                        date: {}
-                                    }
-                                }
-                            }
+	                        schema: {
+	                            model: {
+	                                id: "id",
+	                                fields: {
+	                                    id: {editable: false},
+	                                    goalId: { },
+	                                    startDate: { type: "date" },
+	                                    endDate: { type: "date" },
+	                                    status: {defaultValue: "active", validation: { required: true } },
+	                                    actualValue: { }
+	                                }
+	                            }
+	                        },
+                            sort: [{ field: "endDate", dir: "desc" }]
+                    	});
+                    };
+                    
+                    function deadlineInit(e) {
+                    	 $("<div/>").appendTo(e.detailCell).kendoGrid({
+                       	    dataSource: dataSource(e.data.id),
+                            toolbar: [ { name: "create", text: "Add Deadline" } ],
+                            columns: [
+                                { field: "id", title: "Id", width: "80px" },
+                                //{ field: "goalId", width: "130px" },
+                                { field: "startDate", format: "{0: yyyy-MM-dd}", width: "180px" },
+                                { field: "endDate", format: "{0: yyyy-MM-dd}", width: "180px" },
+                                { field: "status", values: ["active", "sleeping", "succeeded", "failed"] },
+                                "actualValue",
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                            editable: "inline"
                         });
-
-                    $("#record-grid").kendoGrid({
-                   	    autoBind: false,
-                        dataSource: dataSource,
-                        toolbar: ["create"],
-                        columns: [
-                            { field: "id", title: "Id", width: "80px" },
-                            { field: "userId", title: "userId", width: "130px" },
-                            { field: "type", title: "type", width: "250px" },
-                            { field: "date", width: "180px" },
-                            { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
-                        editable: "inline"
-                    });
+                    }
+                    
                 });
             </script>
         </div>
@@ -205,30 +421,28 @@
 			
 			
 			
-			
-        <div id="goal-div">
-			<button type="button" onclick="$('#goal-grid').data('kendoGrid').dataSource.read()">GET goal</button>
-            <div id="goal-grid"></div>
+		<!--  
+        <div id="deadline-div">
+        	<h2>User Deadlines</h2>
+			<button type="button" onclick="$('#deadline-grid').data('kendoGrid').dataSource.read()">GET deadline</button>
+            <div id="deadline-grid"></div>
             <script>
                 $(document).ready(function () {
                 	
                 	
                 	
-                    var crudServiceBaseUrl = "http://localhost:8000/lsc/user",
+                    var crudServiceBaseUrl = "http://localhost:8000/lsc",
+	                	authParams = "user="+document.getElementById("user").value
+							+"&password="+document.getElementById("password").value,
                     	urlWithId = function(options) {
 	                        return crudServiceBaseUrl
-                        		+"/"+document.getElementById("id").value
-	                        	+"/goal"
-	                        	+"/"+options.id
-	                        	+"?user="+document.getElementById("user").value
-	                        	+"&password="+document.getElementById("password").value;
+	                        	+"/deadline"+"/"+options.id
+	                        	+"?"+authParams;
 	                    },
                     	urlBase = function(options) {
 	                        return crudServiceBaseUrl
-                    			+"/"+document.getElementById("id").value
-	                        	+"/goal"
-	                        	+"?user="+document.getElementById("user").value
-	                        	+"&password="+document.getElementById("password").value;
+                    			+"/user/"+document.getElementById("id").value+"/deadline"
+	                        	+"?"+authParams;
 	                    },
                         dataSource = new kendo.data.DataSource({
                             transport: {
@@ -262,44 +476,35 @@
                                 model: {
                                     id: "id",
                                     fields: {
-                                        id: "id",
-                                        userId: "userId",
-                                        recordType: "recordType",
-                                        dataName: "dataName",
-                                        value: "value",
-                                        _function: "function",
-                                        reference: "reference",
-                                        perc: "perc",
-                                        repeat: "repeat",
-                                        days: "days"
+                                        id: {editable: false},
+                                        goalId: { },
+                                        startDate: { type: "date" },
+                                        endDate: { type: "date" },
+                                        status: {defaultValue: "active", validation: { required: true } },
+                                        actualValue: { }
                                     }
                                 }
                             }
                         });
 
-                    $("#goal-grid").kendoGrid({
+                    $("#deadline-grid").kendoGrid({
                    	    autoBind: false,
                         dataSource: dataSource,
                         toolbar: ["create"],
                         columns: [
                             { field: "id", title: "Id", width: "80px" },
-                            { field: "userId", title: "recordId", width: "130px" },
-                            { field: "recordType", title: "name", width: "250px" },
-                            { field: "dataName", width: "180px" },
-                            "value",
-                            "_function",
-                            "reference",
-                            "perc",
-                            "repeat",
-                            "days",
+                            { field: "goalId", width: "130px" },
+                            { field: "startDate", format: "{0: yyyy-MM-dd}", width: "180px" },
+                            { field: "endDate", format: "{0: yyyy-MM-dd}", width: "180px" },
+                            { field: "status", values: ["active", "sleeping", "succeeded", "failed"] },
+                            "actualValue",
                             { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
                         editable: "inline"
                     });
                 });
             </script>
         </div>
-        
-        
+        -->
         
         
         
@@ -311,27 +516,26 @@
         
         
         <div id="notification-div">
+        	<h2>User Notifications</h2>
         	<button type="button" onclick="$('#notification-grid').data('kendoGrid').dataSource.read()">GET /lsc/notification</button>
             <div id="notification-grid"></div>
 
             <script>
                 $(document).ready(function () {
 
-                    var crudServiceBaseUrl = "http://localhost:8000/lsc/user",
+                    var crudServiceBaseUrl = "http://localhost:8000/lsc",
+                    	authParams = "user="+document.getElementById("user").value
+          							+"&password="+document.getElementById("password").value,
                     	urlWithId = function(options) {
 	                        return crudServiceBaseUrl
-	                        	+"/"+document.getElementById("id").value
-	                        	+"/notification"
-	                        	+"/"+options.id
-	                        	+"?user="+document.getElementById("user").value
-	                        	+"&password="+document.getElementById("password").value;
+	                        	+"/notification/"+options.id
+	                        	+"?"+authParams;
 	                    },
                     	urlBase = function(options) {
 	                        return crudServiceBaseUrl
-                        		+"/"+document.getElementById("id").value
+	                        	+"/user/"+document.getElementById("id").value
 	                        	+"/notification"
-	                        	+"?user="+document.getElementById("user").value
-	                        	+"&password="+document.getElementById("password").value;
+	                        	+"?"+authParams;
 	                    },
                         dataSource = new kendo.data.DataSource({
                             transport: {
@@ -365,34 +569,36 @@
                                 model: {
                                     id: "id",
                                     fields: {
-                                    	id: "id",
-                                        userId: "userId",
-                                        date: "date",
-                                        message: "message",
-                                        type: "type",
-                                        status: "status",
-                                        deadlineId: "deadlineId",
-                                        external_resource: "external_resource"
+                                    	id: {editable: false},
+                                        userId: {editable: false},
+                                        date: {editable: false, type: "date" },
+                                        message: {editable: false},
+                                        type: {editable: false},
+                                        status: {defaultValue: "unread", validation: { required: true } },
+                                        deadlineId: {editable: false},
+                                        external_resource: {editable: false}
                                 	}
                                 }
-                            }
+                            },
+                            sort: [{ field: "date", dir: "desc" }]
                         });
 					
                     $("#notification-grid").kendoGrid({
                    	    autoBind: false,
                         dataSource: dataSource,
-                        toolbar: ["create"],
+                        //toolbar: ["create"],
                         columns: [
                             { field: "id", title: "Id", width: "80px" },
-                            { field: "userId", title: "recordId", width: "130px" },
-                            { field: "date", title: "name", width: "250px" },
+                            { field: "userId", width: "130px" },
+                            { field: "date", format: "{0: yyyy-MM-dd}", width: "250px" },
                             { field: "message", width: "180px" },
-                            "type",
-                            "status",
+                            { field: "type" },
+                            { field: "status", values: ["read", "unread"] },
                             "deadlineId",
                             "external_resource",
                             { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
-                        editable: "inline"
+                        editable: "inline",
+                        sortable: true
                     });
                 });
             </script>

@@ -73,6 +73,22 @@ public class DeadlineLogic {
 	
 	private static void updateDeadlineActualValue(Deadline deadline, Goal goal) {
 		Statistic stat = computeDeadlineStatistic(deadline, goal);
+		if( stat.getDatas() == null) {
+			System.out.println("ERROR DeadlineLogic.updateDeadlineActualValue stat.getDatas() is NULL");
+			return;
+		}
+		if( goal.getFunction() == null) {
+			System.out.println("ERROR DeadlineLogic.updateDeadlineActualValue goal.getFunction() is NULL");
+			return;
+		}
+		if( goal.getReference() == null) {
+			System.out.println("ERROR DeadlineLogic.updateDeadlineActualValue goal.getReference() is NULL");
+			return;
+		}
+		if( goal.getPerc() == null) {
+			System.out.println("ERROR DeadlineLogic.updateDeadlineActualValue goal.getPerc() is NULL");
+			return;
+		}
 		Float actual_value = stat.getDatas().get(0).getValues()
 				.get(goal.getFunction())
 				.get(goal.getReference())

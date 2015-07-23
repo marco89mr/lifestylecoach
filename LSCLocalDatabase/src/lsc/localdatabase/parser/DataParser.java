@@ -26,6 +26,7 @@ public class DataParser extends BaseParser			<	DataDao,
 		data.setId			(	entity.getId()				);
 		}catch (IllegalArgumentException e){}
 		try{
+		if(entity.getRecord()!=null)
 		data.setRecordId	(	entity.getRecord().getId()	);
 		}catch (IllegalArgumentException e){}
 		return data;

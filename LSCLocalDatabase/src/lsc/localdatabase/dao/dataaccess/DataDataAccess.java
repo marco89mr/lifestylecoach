@@ -28,11 +28,11 @@ public class DataDataAccess extends BaseDataAccess<DataDao, DataCollectionDao>{
 		}
 		if(param.containsKey("record_type")) {
 			if(!where.equals("")) where+=" and";
-			where+=" d.record.type LIKE "+param.getFirst("record_type");
+			where+=" d.record.type LIKE \""+param.getFirst("record_type")+"\"";
 		}
 		if(param.containsKey("data_name")) {
 			if(!where.equals("")) where+=" and";
-			where+=" s.name LIKE "+param.getFirst("data_name");
+			where+=" s.name LIKE \""+param.getFirst("data_name")+"\"";
 		}
 		if(param.containsKey("fromdate")) {
 			if(!where.equals("")) where+=" and";

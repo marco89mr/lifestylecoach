@@ -1,5 +1,7 @@
 package lsc.finalinterface.logic;
 
+import java.net.MalformedURLException;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -31,7 +33,12 @@ public class RecordLogic extends BaseLogic<	RecordComplex,
 	public Response post(UriInfo uriInfo, RecordComplex entity) {
 		Response r = super.post(uriInfo, entity);
 		// TODO call check deadline
-		BusinessLogicClient.check_record( entity );
+		try {
+			BusinessLogicClient.check_record( entity );
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return r;
 	}
 	
@@ -40,7 +47,12 @@ public class RecordLogic extends BaseLogic<	RecordComplex,
 	public RecordComplex put(UriInfo uriInfo, RecordComplex entity, int id) {
 		RecordComplex r = super.put(uriInfo, entity, id);
 		// TODO call check deadline
-		BusinessLogicClient.check_record( entity );
+		try {
+			BusinessLogicClient.check_record( entity );
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return r;
 	}
 	
@@ -49,7 +61,12 @@ public class RecordLogic extends BaseLogic<	RecordComplex,
 	public void delete(UriInfo uriInfo, int id) {
 		super.delete(uriInfo, id);
 		// TODO call check deadline
-		BusinessLogicClient.check_record( StorageClient.record.getById(id) );
+		try {
+			BusinessLogicClient.check_record( StorageClient.record.getById(id) );
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

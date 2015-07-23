@@ -28,7 +28,7 @@ public class DeadlineDataAccess extends BaseDataAccess<DeadlineDao, DeadlineColl
 		}
 		if(param.containsKey("record_type")) {
 			if(!where.equals("")) where+=" and";
-			where+=" d.goal.record_type LIKE "+param.getFirst("record_type");
+			where+=" d.goal.record_type LIKE \""+param.getFirst("record_type")+"\"";
 		}
 		if(param.containsKey("data_name")) {
 			if(!where.equals("")) where+=" and";

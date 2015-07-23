@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
-@XmlType(name = "notification", propOrder = { "id", "userId", "date", "message", "type", "status", "deadlineId", "external_resource" })
+//@XmlType(name = "notification", propOrder = { "id", "userId", "date", "message", "type", "status", "deadlineId", "external_resource" })
 @XmlRootElement(name="notification")
 public class Notification extends Base {
 
@@ -56,6 +56,8 @@ public class Notification extends Base {
 	
 	@XmlElement
 	public String getExternal_resource() { return "User"; }
+	
+	public void setExternal_resource(String r) { }
 	
 	
 	public String getDate() { return this.date; }

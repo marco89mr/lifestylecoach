@@ -1,5 +1,7 @@
 package lsc.finalinterface.logic;
 
+import java.net.MalformedURLException;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -35,7 +37,12 @@ public class DeadlineLogic extends BaseLogic<	Deadline,
 	public Response post(UriInfo uriInfo, Deadline entity) {
 		Response r = super.post(uriInfo, entity);
 		// TODO call check deadline
-		BusinessLogicClient.check_deadline( entity );
+		try {
+			BusinessLogicClient.check_deadline( entity );
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return r;
 	}
 	
@@ -44,6 +51,12 @@ public class DeadlineLogic extends BaseLogic<	Deadline,
 	public Deadline put(UriInfo uriInfo, Deadline entity, int id) {
 		Deadline r = super.put(uriInfo, entity, id);
 		// TODO call check deadline
+		try {
+			BusinessLogicClient.check_deadline( entity );
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return r;
 	}
 	

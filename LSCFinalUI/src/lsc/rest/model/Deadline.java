@@ -8,7 +8,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "Deadline", propOrder = { "id", "goalId", "startDate", "endDate", "status", "actualValue" })
 @XmlRootElement(name="deadline")
 public class Deadline extends Base {
-
+	
+	@XmlType(namespace = "Deadline")
 	public enum Status {
 		active, sleeping, succeeded, failed;
 	};
@@ -24,7 +25,7 @@ public class Deadline extends Base {
 	private String start_date;
 	
 	private String end_date;
-	
+
 	private Status status;
 	
 	private String actual_value;

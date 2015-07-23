@@ -32,10 +32,13 @@ public class StatisticLogic {
 		Date to_date = Base._parseDate(to);
 		long milliseconds = to_date.getTime() - from_date.getTime();
 		long ms_per_interval = on_interval.getMs();
-		long intervals = (int) milliseconds / ms_per_interval + 1;
+		long intervals = 0;
 		if(ms_per_interval==0) {
 			ms_per_interval = milliseconds;
 			intervals = 1;
+		}
+		else {
+			intervals = (int) milliseconds / ms_per_interval + 1;
 		}
 		
 		// Compose statistic
@@ -156,6 +159,8 @@ public class StatisticLogic {
 	
 	
 	private static void completeTargetAbs(	StatisticData statisticData, DataCollection data_collection ) {
+		if(data_collection==null || statisticData==null) 
+			return;
 		//elaborate TARGET ABS values
 		for(Goal.Function f : Goal.Function.values()){
 			double value = elaborateDataCollection(Function.average, data_collection);
@@ -164,6 +169,8 @@ public class StatisticLogic {
 	}
 	
 	private static void completeTargetPerc( StatisticData statisticData, StatisticData old ) {
+		if(old==null || statisticData==null) 
+			return;
 		// elaborate TARGET PERC values
 		for(Goal.Function f : Goal.Function.values()){
 			double value = statisticData.getValues().get(f).get(Reference.target).get(Perc.abs)
@@ -174,6 +181,8 @@ public class StatisticLogic {
 	}
 	
 	private static void completeIncrementAbs( StatisticData statisticData, StatisticData old ) {
+		if(old==null || statisticData==null) 
+			return;
 		// elaborate INCREMENT ABS values
 		for(Goal.Function f : Goal.Function.values()){
 			double value = statisticData.getValues().get(f).get(Reference.target).get(Perc.abs)
@@ -183,6 +192,8 @@ public class StatisticLogic {
 	}
 	
 	private static void completeIncrementPerc( StatisticData statisticData, StatisticData old ) {
+		if(old==null || statisticData==null) 
+			return;
 		// elaborate INCREMENT PERC values
 		for(Goal.Function f : Goal.Function.values()){
 			double value = statisticData.getValues().get(f).get(Reference.increment).get(Perc.abs)
@@ -193,6 +204,8 @@ public class StatisticLogic {
 	}
 	
 	private static Float elaborateDataCollection(Function function, DataCollection data_collection) {
+		if(function==null || data_collection==null) 
+			return Float.valueOf(0);
 		switch(function){
 		case average:
 			return data_collection._sum();

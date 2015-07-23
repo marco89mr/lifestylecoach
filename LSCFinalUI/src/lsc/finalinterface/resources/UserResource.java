@@ -15,6 +15,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import lsc.finalinterface.logic.FinalInterfaceLogic;
+import lsc.rest.model.Deadline;
+import lsc.rest.model.DeadlineCollection;
 import lsc.rest.model.Goal;
 import lsc.rest.model.GoalCollection;
 import lsc.rest.model.Notification;
@@ -108,6 +110,26 @@ public class UserResource {
 	
 	
 	
+	// ----------------
+	// user/id/deadline
+	// ----------------
+	
+	@Path("/deadline")
+	@GET
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+	public DeadlineCollection getAllDeadlines() {
+		return FinalInterfaceLogic.deadline.getAllUnderUser(uriInfo, user_id);
+	}
+	
+	@Path("/deadline")
+	@POST
+	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+	public Response newEntry(Deadline deadline) {
+		return FinalInterfaceLogic.deadline.post(uriInfo, deadline);
+	}
+	
+	
+	
 	// --------------------
 	// user/id/notification
 	// --------------------
@@ -118,7 +140,8 @@ public class UserResource {
 	public NotificationCollection getAllNotifications() {
 		return FinalInterfaceLogic.notification.getAllUnderUser(uriInfo, user_id);
 	}
-
+	
+	/*
 	@Path("/notification")
 	@POST
 	@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
@@ -126,6 +149,7 @@ public class UserResource {
 		notification.setUserId(user_id);
 		return FinalInterfaceLogic.notification.post(uriInfo, notification);
 	}
+	*/
 	
 	
 	

@@ -317,8 +317,8 @@
                         toolbar: ["create"],
                         columns: [
                             { field: "id", title: "Id", width: "80px" },
-                            { field: "userId", title: "recordId", width: "130px" },
-                            { field: "recordType", title: "name", width: "250px" },
+                            { field: "userId", width: "130px" },
+                            { field: "recordType", width: "250px" },
                             { field: "dataName", width: "180px" },
                             "value",
                             "perc",
@@ -385,7 +385,7 @@
                                 model: {
                                     id: "id",
                                     fields: {
-                                        id: "id",
+                                        id: {editable: false},
                                         goalId: "goalId",
                                         startDate: "startDate",
                                         endDate: "endDate",
@@ -402,10 +402,10 @@
                         toolbar: ["create"],
                         columns: [
                             { field: "id", title: "Id", width: "80px" },
-                            { field: "goalId", title: "recordId", width: "130px" },
-                            { field: "startDate", title: "name", width: "250px" },
+                            { field: "goalId", width: "130px" },
+                            { field: "startDate", width: "250px" },
                             { field: "endDate", width: "180px" },
-                            "status",
+                            { field: "status", values: ["active", "sleeping", "succeeded", "failed"] },
                             "actualValue",
                             { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
                         editable: "inline"
@@ -488,8 +488,8 @@
                         toolbar: ["create"],
                         columns: [
                             { field: "id", title: "Id", width: "80px" },
-                            { field: "userId", title: "recordId", width: "130px" },
-                            { field: "date", title: "name", width: "250px" },
+                            { field: "userId", width: "130px" },
+                            { field: "date", width: "250px" },
                             { field: "message", width: "180px" },
                             "type",
                             "status",

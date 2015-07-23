@@ -69,9 +69,12 @@ public class StorageClient {
 		public M getById(int id) {
 			return ClientUtils.<M>http_get(model_class(), resource_url() + "/" + id );
 		}
-		public void post(M x) {
+		public M post(M x) {
 			String url = ClientUtils.<M>http_post(model_class(), resource_url(), x);
+			System.out.println(url);
 			x = ClientUtils.<M>http_get(this.model_class(), url);
+			//x.setId(y.getId());
+			return x;
 		}
 		public void put(M x) {
 			ClientUtils.<M>http_put(model_class(), resource_url() + "/" + x.getId(), x);

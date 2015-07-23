@@ -57,7 +57,43 @@ public class MainResource {
 	{
 		System.out.println("GET /web");
 		File f = new File("WebContent/finalinterfaceWebApp.html");
-	    System.out.println("Il doc si trova nel percorso" + f.toURL());
+	    //System.out.println("Il doc si trova nel percorso" + f.toURL());
+		return new FileInputStream(f);
+	}
+	
+	@Path("/css/kendo.common-material.min.css")
+	@GET
+	@Produces()
+	public InputStream css1() throws IOException
+	{
+		File f = new File("WebContent/css/kendo.common-material.min.css");
+		return new FileInputStream(f);
+	}
+	
+	@Path("/css/kendo.material.min.css")
+	@GET
+	@Produces()
+	public InputStream css2() throws IOException
+	{
+		File f = new File("WebContent/css/kendo.material.min.css");
+		return new FileInputStream(f);
+	}
+	
+	@Path("/js/jquery.min.js")
+	@GET
+	@Produces({MediaType.TEXT_HTML})
+	public InputStream js1() throws IOException
+	{
+		File f = new File("WebContent/js/jquery.min.js");
+		return new FileInputStream(f);
+	}
+	
+	@Path("js/kendo.all.min.js")
+	@GET
+	@Produces({MediaType.TEXT_HTML})
+	public InputStream js2() throws IOException
+	{
+		File f = new File("WebContent/js/kendo.all.min.js");
 		return new FileInputStream(f);
 	}
 	

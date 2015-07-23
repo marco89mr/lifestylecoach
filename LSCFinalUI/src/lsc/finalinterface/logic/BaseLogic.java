@@ -130,7 +130,7 @@ public abstract class BaseLogic 	<	M extends Base,
 		System.out.println("http post "+uriInfo.getPath());
 		if( !checkPermission(uriInfo, master(entity)) )
 			return null;
-		storage_client().post( entity );
+		entity = storage_client().post( entity );
 		URI uri = URI.create( final_client().resource_url() +"/"+ entity.getId() );
 		return Response.created(uri).build();
 	}

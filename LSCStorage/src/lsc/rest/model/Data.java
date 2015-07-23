@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
-@XmlType(name = "data", propOrder = { "id", "recordId", "external_resource", "name", "value" })
+@XmlType(name = "data", propOrder = { "id", "recordId", "name", "value" })
 @XmlRootElement(name="data")
 public class Data extends Base {
 
@@ -36,7 +36,7 @@ public class Data extends Base {
 	public void setId(int id) { this.id = id; }
 	
 	
-	@XmlElement
+	@XmlElement(name="recordId")
 	public int getRecordId() { return this.record_id; }
 	
 	public void setRecordId(int id) { this.record_id = id; }

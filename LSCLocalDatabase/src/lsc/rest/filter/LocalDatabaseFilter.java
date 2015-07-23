@@ -103,7 +103,7 @@ public class LocalDatabaseFilter {
 	public static class DeadlineFilter extends BaseFilter {
 		public DeadlineFilter user_id(int id) { return this.addFilter("user_id", ""+id); }
 		public DeadlineFilter goal_id(int id) { return this.addFilter("goal_id", ""+id); }
-		public DeadlineFilter record_type(String s) { return this.addFilter("record_type", s); }
+		public DeadlineFilter record_type(String s) { return this.addFilter("record_type", s.toString()); }
 		public DeadlineFilter data_name(String s) { return this.addFilter("data_name", s); }
 		public DeadlineFilter status(Deadline.Status s) { return this.addFilter("status", s.toString()); }
 		public DeadlineFilter by_date(String s) { return this.addFilter("by_date", s); }

@@ -109,6 +109,7 @@ public class MainResource {
 			RecordComplex rc = StorageParser.record.toRecordComplex(r, datas);
 			recsc.add(rc);
 		}
+		System.out.println("http get end");
 		return recsc;
 	}
 
@@ -119,8 +120,10 @@ public class MainResource {
 		System.out.println("http post "+uriInfo.getPath());
 		// record
 		Record record = StorageParser.record.toRecord( recordComplex );
-		LocalDatabaseClient.record.post( record );
+		record = LocalDatabaseClient.record.post( record );
+		//System.out.println("assigned record id:"+record.getId());
 		// data
+		recordComplex.setId(record.getId()); //important!!!
 		DataCollection datas = StorageParser.record.toData( recordComplex );
 		for(Data d : datas)
 			LocalDatabaseClient.data.post( d );

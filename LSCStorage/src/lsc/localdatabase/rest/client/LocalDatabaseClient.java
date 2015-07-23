@@ -68,9 +68,11 @@ public class LocalDatabaseClient {
 		public M getById(int id) {
 			return ClientUtils.<M>http_get(model_class(), resource_url() + "/" + id );
 		}
-		public void post(M x) {
+		public M post(M x) {
 			String url = ClientUtils.<M>http_post(model_class(), resource_url(), x);
 			x = ClientUtils.<M>http_get(this.model_class(), url);
+			//System.out.println("client id:" + x.getId());
+			return x;
 		}
 		public void put(M x) {
 			ClientUtils.<M>http_put(model_class(), resource_url() + "/" + x.getId(), x);

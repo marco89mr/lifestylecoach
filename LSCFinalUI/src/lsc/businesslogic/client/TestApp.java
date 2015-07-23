@@ -64,7 +64,7 @@ public class TestApp{
 		
 		//User user = StorageClient.user.getById(1);
 		System.out.println("DEBUG NotificationLogic.getAllUnderUser id:" + 1);
-		BusinessLogicClient.check_today(1);
+		NotificationCollection nn = BusinessLogicClient.check_today(1);
 		System.out.println("DEBUG NotificationLogic.getAllUnderUser 2");
         
 	}

@@ -44,12 +44,12 @@ public class DeadlineDataAccess extends BaseDataAccess<DeadlineDao, DeadlineColl
 		}
 		if(param.containsKey("since_date")) {
 			if(!where.equals("")) where+=" and";
-			where+=" d.start_date > \""+param.getFirst("since_date")+"\"";
+			where+=" d.start_date >= \""+param.getFirst("since_date")+"\"";
 		}
 		if(param.containsKey("include_date")) {
 			if(!where.equals("")) where+=" and";
-			where+=" d.start_date < \""+param.getFirst("include_date")+"\"";
-			where+=" and d.end_date > \""+param.getFirst("include_date")+"\"";
+			where+=" d.start_date <= \""+param.getFirst("include_date")+"\"";
+			where+=" and d.end_date >= \""+param.getFirst("include_date")+"\"";
 		}
 		if(param.containsKey("last")) {
 			if(!where.equals("")) where+=" and";

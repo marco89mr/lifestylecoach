@@ -11,7 +11,7 @@ import lsc.localdatabase.dao.model.BaseCollectionDao;
 import lsc.localdatabase.dao.model.BaseDao;
 import lsc.localdatabase.parser.BaseParser;
 import lsc.localdatabase.rest.client.LocalDatabaseClient;
-import lsc.rest.filter.LocalDatabaseFilter;
+import lsc.rest.filter.Filter;
 import lsc.rest.model.Base;
 import lsc.rest.model.BaseCollection;
 import lsc.utils.MultivaluedMapImpl;
@@ -19,7 +19,7 @@ import lsc.utils.MultivaluedMapImpl;
 
 public abstract class BaseLogic <	M extends Base,
 									MM extends BaseCollection<M>,
-					 				F extends LocalDatabaseFilter.BaseFilter,
+					 				F extends Filter.BaseFilter<F>,
 					 				D extends BaseDao,
 									DD extends BaseCollectionDao<D>,
 					 				A extends BaseDataAccess<D, DD>,

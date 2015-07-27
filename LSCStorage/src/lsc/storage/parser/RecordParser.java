@@ -18,6 +18,8 @@ public class RecordParser {
 	
 	public RecordComplex toRecordComplex(Record record, DataCollection data) {
 		RecordComplex main = new RecordComplex();
+		if(record == null)
+			return main;
 		main.setDate		(	record.getDate()			);
 		main.setType		(	record.getType()			);
 		main.setData		( 	toRecordComplex(data)		);
@@ -27,6 +29,8 @@ public class RecordParser {
 	}
 	public List<RecordComplex.Data> toRecordComplex(DataCollection collection) {
 		List<RecordComplex.Data> list = new ArrayList<RecordComplex.Data>();
+		if(collection == null) 
+			return list;
 		for(Data d : collection)
 			list.add( toRecordComplex(d) );
 		return list;

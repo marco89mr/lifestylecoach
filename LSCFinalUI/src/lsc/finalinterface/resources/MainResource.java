@@ -1,12 +1,10 @@
 package lsc.finalinterface.resources;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.ejb.*;
@@ -20,14 +18,20 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
 
+import lsc.businesslogic.client.BusinessLogicClient;
+import lsc.businesslogic.client.JaxWsHandlerResolver;
+import lsc.businesslogic.ws.LSCLogic;
+import lsc.finalinterface.logic.BaseLogic;
 import lsc.finalinterface.logic.FinalInterfaceLogic;
 import lsc.rest.model.Deadline;
 import lsc.rest.model.DeadlineCollection;
 import lsc.rest.model.Goal;
 import lsc.rest.model.GoalCollection;
+import lsc.rest.model.Notification;
 import lsc.rest.model.NotificationCollection;
 import lsc.rest.model.RecordComplex;
 import lsc.rest.model.RecordComplexCollection;
@@ -132,8 +136,26 @@ public class MainResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public Statistic getStatistic() {
-		//TODO
-		return null;
+		System.out.println("http get "+uriInfo.getPath());
+		
+		int authenticated_id = BaseLogic.authenticate(uriInfo);
+		if( authenticated_id == 0 )
+			//invalid credentials
+			return null;
+		
+		int user_id = Integer.parseInt( uriInfo.getQueryParameters().getFirst("user_id") );
+		String record_type = uriInfo.getQueryParameters().getFirst("record_type");
+		String field_name = uriInfo.getQueryParameters().getFirst("field_name");
+		String from = uriInfo.getQueryParameters().getFirst("from");
+		String to = uriInfo.getQueryParameters().getFirst("to");
+		Goal.Interval on_interval = Goal.Interval.valueOf( uriInfo.getQueryParameters().getFirst("on_interval") );
+		Goal.Function function = Goal.Function.valueOf(  uriInfo.getQueryParameters().getFirst("function") );
+		
+		// contact BusinessLogic
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		Statistic s = lscLogic.computeStatisticFor(user_id, record_type, field_name, from, to, on_interval, function);
+		
+		return s;
 	}
 	
 	

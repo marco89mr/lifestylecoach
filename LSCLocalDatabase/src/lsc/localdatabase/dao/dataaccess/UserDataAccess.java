@@ -21,6 +21,10 @@ public class UserDataAccess extends BaseDataAccess<UserDao, UserCollectionDao> {
 	
 	public UserCollectionDao getAll(MultivaluedMap<String,String> param) {
 		String where = "";
+		if(param.containsKey("user_id")) {
+			if(!where.equals("")) where+=" and";
+			where+=" u.id = "+param.getFirst("user_id");
+		}
 		if(param.containsKey("name")) {
 			if(!where.equals("")) where+=" and";
 			where+=" u.name LIKE \""+param.getFirst("name")+"\"";
@@ -36,7 +40,7 @@ public class UserDataAccess extends BaseDataAccess<UserDao, UserCollectionDao> {
 		    Calendar cal = Calendar.getInstance();
 		    cal.add(Calendar.YEAR, -years);
 		    String string_date = sdf.format( cal.getTime() );
-			where+=" u.birthdate < \""+string_date+"\"";
+			where+=" u.birthdate <= \""+string_date+"\"";
 		}
 		if(param.containsKey("youngerthan")) {
 			if(!where.equals("")) where+=" and";
@@ -45,15 +49,15 @@ public class UserDataAccess extends BaseDataAccess<UserDao, UserCollectionDao> {
 		    Calendar cal = Calendar.getInstance();
 		    cal.add(Calendar.YEAR, -years);
 		    String string_date = sdf.format( cal.getTime() );
-			where+=" u.birthdate > \""+string_date+"\"";
+			where+=" u.birthdate >= \""+string_date+"\"";
 		}
 		if(param.containsKey("bornbeforedate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" u.birthdate < \""+param.getFirst("bornbeforedate")+"\"";
+			where+=" u.birthdate <= \""+param.getFirst("bornbeforedate")+"\"";
 		}
 		if(param.containsKey("bornafterdate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" u.birthdate > \""+param.getFirst("bornafterdate")+"\"";
+			where+=" u.birthdate >= \""+param.getFirst("bornafterdate")+"\"";
 		}
 		if(!where.equals(""))
 			where = " WHERE" + where;

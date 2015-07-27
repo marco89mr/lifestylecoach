@@ -2,6 +2,8 @@
     <wb-module deploy-name="LSCLocalDatabase">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/shared"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_public"/>
         <property name="context-root" value="LSCLocalDatabase"/>
         <property name="java-output-path" value="/LSCLocalDatabase/build/classes"/>
     </wb-module>

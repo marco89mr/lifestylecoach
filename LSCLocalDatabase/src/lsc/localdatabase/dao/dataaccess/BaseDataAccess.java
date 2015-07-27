@@ -75,6 +75,7 @@ public abstract class BaseDataAccess <M extends BaseDao, MM extends BaseCollecti
 		System.out.println("--> DataAccess.getAll( query: "+personal_query+" )");
 		EntityManager em = LifeStyleCoachDao.instance.createEntityManager();
 		TypedQuery<M> query = em.createQuery(personal_query, model_class);
+		System.out.println("--> DataAccess.getAll( query: "+query.toString()+" )");
 		empty_collection.clear();
 		empty_collection.addAll( query.getResultList() );
 		LifeStyleCoachDao.instance.closeConnections(em);

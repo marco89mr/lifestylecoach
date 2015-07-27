@@ -47,7 +47,7 @@ public class RecordResource {
 		//record
 		Record r = LocalDatabaseClient.record.getById( record_id );
 		//datas
-		Filter.DataFilter filter = Filter.data.record_id( record_id );
+		Filter.DataFilter filter = Filter.data().record_id( record_id );
 		DataCollection datas = LocalDatabaseClient.data.getAll( filter );
 		//unify
 		RecordComplex rc = StorageParser.record.toRecordComplex(r, datas);
@@ -63,7 +63,7 @@ public class RecordResource {
 		Record new_record = StorageParser.record.toRecord(recordcomplex);
 		LocalDatabaseClient.record.put( new_record );
 		//delete old datas
-		Filter.DataFilter filter = Filter.data.record_id( record_id );
+		Filter.DataFilter filter = Filter.data().record_id( record_id );
 		DataCollection old_datas = LocalDatabaseClient.data.getAll( filter );
 		for(Data d : old_datas)
 			LocalDatabaseClient.data.delete( d.getId() );
@@ -83,7 +83,7 @@ public class RecordResource {
 		//record
 		LocalDatabaseClient.record.delete( record_id );
 		//datas
-		Filter.DataFilter filter = Filter.data.record_id( record_id );
+		Filter.DataFilter filter = Filter.data().record_id( record_id );
 		DataCollection datas = LocalDatabaseClient.data.getAll( filter );
 		for(Data d : datas)
 			LocalDatabaseClient.data.delete( d.getId() );

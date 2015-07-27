@@ -42,7 +42,7 @@ public class StorageLogic {
 													LocalDatabaseClient.UserClient,
 													UserParser	> {
 		@Override
-		protected UserFilter filter() {return Filter.user; }
+		protected UserFilter filter() {return Filter.user(); }
 		@Override
 		protected LocalDatabaseClient.UserClient client() { return LocalDatabaseClient.user; }
 		@Override
@@ -58,7 +58,7 @@ public class StorageLogic {
 													LocalDatabaseClient.DataClient,
 													DataParser	> {
 		@Override
-		protected DataFilter filter() {return Filter.data; }
+		protected DataFilter filter() {return Filter.data(); }
 		@Override
 		protected LocalDatabaseClient.DataClient client() { return LocalDatabaseClient.data; }
 		@Override
@@ -74,7 +74,7 @@ public class StorageLogic {
 													LocalDatabaseClient.GoalClient,
 													GoalParser	> {
 		@Override
-		protected GoalFilter filter() {return Filter.goal; }
+		protected GoalFilter filter() {return Filter.goal(); }
 		@Override
 		protected LocalDatabaseClient.GoalClient client() { return LocalDatabaseClient.goal; }
 		@Override
@@ -90,7 +90,7 @@ public class StorageLogic {
 														LocalDatabaseClient.DeadlineClient,
 														DeadlineParser	> {
 		@Override
-		protected DeadlineFilter filter() {return Filter.deadline; }
+		protected DeadlineFilter filter() {return Filter.deadline(); }
 		@Override
 		protected LocalDatabaseClient.DeadlineClient client() { return LocalDatabaseClient.deadline; }
 		@Override
@@ -106,7 +106,7 @@ public class StorageLogic {
 													LocalDatabaseClient.ToDoClient,
 													ToDoParser	> {
 		@Override
-		protected ToDoFilter filter() {return Filter.todo; }
+		protected ToDoFilter filter() {return Filter.todo(); }
 		@Override
 		protected LocalDatabaseClient.ToDoClient client() { return LocalDatabaseClient.todo; }
 		@Override
@@ -122,7 +122,7 @@ public class StorageLogic {
 															LocalDatabaseClient.NotificationClient,
 															NotificationParser	> {
 		@Override
-		protected NotificationFilter filter() {return Filter.notification; }
+		protected NotificationFilter filter() {return Filter.notification(); }
 		@Override
 		protected LocalDatabaseClient.NotificationClient client() { return LocalDatabaseClient.notification; }
 		@Override

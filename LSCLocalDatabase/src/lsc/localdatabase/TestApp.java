@@ -1,4 +1,4 @@
-package lsc.localdatabase.rest.client;
+package lsc.localdatabase;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

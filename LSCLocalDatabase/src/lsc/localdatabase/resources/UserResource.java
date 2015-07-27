@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import lsc.localdatabase.logic.LocalDatabaseLogic;
-import lsc.rest.filter.LocalDatabaseFilter;
+import lsc.rest.filter.Filter;
 import lsc.rest.model.Goal;
 import lsc.rest.model.GoalCollection;
 import lsc.rest.model.Notification;
@@ -94,7 +94,7 @@ public class UserResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public RecordCollection getAllRecords() {
-		return LocalDatabaseLogic.record.getAll(uriInfo, LocalDatabaseFilter.record.user_id(user_id));
+		return LocalDatabaseLogic.record.getAll(uriInfo, Filter.record().user_id(user_id));
 	}
 
 	@Path("/record")
@@ -114,7 +114,7 @@ public class UserResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public GoalCollection getAllGoals() {
-		return LocalDatabaseLogic.goal.getAll(uriInfo, LocalDatabaseFilter.goal.user_id(user_id));
+		return LocalDatabaseLogic.goal.getAll(uriInfo, Filter.goal().user_id(user_id));
 	}
 
 	@Path("/goal")
@@ -134,7 +134,7 @@ public class UserResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public NotificationCollection getAllNotifications() {
-		return LocalDatabaseLogic.notification.getAll(uriInfo, LocalDatabaseFilter.notification.user_id(user_id));
+		return LocalDatabaseLogic.notification.getAll(uriInfo, Filter.notification().user_id(user_id));
 	}
 
 	@Path("/notification")
@@ -154,7 +154,7 @@ public class UserResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public ToDoCollection getAllToDos() {
-		return LocalDatabaseLogic.todo.getAll(uriInfo, LocalDatabaseFilter.todo.user_id(user_id));
+		return LocalDatabaseLogic.todo.getAll(uriInfo, Filter.todo().user_id(user_id));
 	}
 
 	@Path("/todo")

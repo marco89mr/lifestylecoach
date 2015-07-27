@@ -3,6 +3,7 @@ package lsc.localdatabase.parser;
 import lsc.localdatabase.dao.dataaccess.LocalDatabaseDataAccess;
 import lsc.localdatabase.dao.model.DeadlineDao;
 import lsc.localdatabase.dao.model.DeadlineCollectionDao;
+import lsc.rest.model.Base;
 import lsc.rest.model.Deadline;
 import lsc.rest.model.DeadlineCollection;
 
@@ -43,10 +44,10 @@ public class DeadlineParser extends BaseParser			<	DeadlineDao,
 		dao.setId			(	rest.getId()								);
 		}catch (IllegalArgumentException e){}
 		try{
-		dao.setEnd_date		(	rest.getEndDate()							);
+		dao.setEnd_date		(	Base._uniformDate(rest.getEndDate())		);
 		}catch (IllegalArgumentException e){}
 		try{
-		dao.setStart_date	(	rest.getStartDate()						);
+		dao.setStart_date	(	Base._uniformDate(rest.getStartDate())		);
 		}catch (IllegalArgumentException e){}
 		try{
 		dao.setStatus		(	rest.getStatus().toString()					);

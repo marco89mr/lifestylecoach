@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import lsc.localdatabase.logic.LocalDatabaseLogic;
-import lsc.rest.filter.LocalDatabaseFilter;
+import lsc.rest.filter.Filter;
 import lsc.rest.model.Deadline;
 import lsc.rest.model.DeadlineCollection;
 import lsc.rest.model.Goal;
@@ -70,7 +70,7 @@ public class GoalResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public DeadlineCollection getAll() {
-		return LocalDatabaseLogic.deadline.getAll(uriInfo, LocalDatabaseFilter.deadline.goal_id(goal_id));
+		return LocalDatabaseLogic.deadline.getAll(uriInfo, Filter.deadline().goal_id(goal_id));
 	}
 
 	@Path("/deadline")

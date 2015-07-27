@@ -2,7 +2,9 @@ package lsc.rest.filter;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.ws.rs.core.MultivaluedMap;
+
 import lsc.rest.model.Deadline;
 
 
@@ -10,19 +12,19 @@ public class Filter {
 	
 	
 	
-	public static UserFilter user = new UserFilter();
+	public static UserFilter user() { return new UserFilter(); };
 	
-	public static RecordFilter record = new RecordFilter();
+	public static RecordFilter record() { return new RecordFilter(); };
 	
-	public static DataFilter data = new DataFilter();
+	public static DataFilter data() { return new DataFilter(); };
 	
-	public static GoalFilter goal = new GoalFilter();
+	public static GoalFilter goal() { return new GoalFilter(); };
 	
-	public static DeadlineFilter deadline = new DeadlineFilter();
+	public static DeadlineFilter deadline() { return new DeadlineFilter(); };
 	
-	public static ToDoFilter todo = new ToDoFilter();
+	public static ToDoFilter todo() { return new ToDoFilter(); };
 	
-	public static NotificationFilter notification = new NotificationFilter();
+	public static NotificationFilter notification() { return new NotificationFilter(); };
 	
 	
 	
@@ -31,6 +33,19 @@ public class Filter {
 		protected Map<String,String> filter = new HashMap<String,String>();
 
 		public Map<String,String> getFilter() { return filter; }
+		
+		//useless
+		public BaseFilter() {
+			filter = null;
+			filter = new HashMap<String,String>();
+		}
+		
+		//is this the only way?
+		@SuppressWarnings("unchecked")
+		public F clear() {
+			filter = new HashMap<String,String>();
+			return (F) this;
+		}
 		
 		public String param_url() {
 			String param = ( filter.isEmpty() ? "" : "?");
@@ -108,6 +123,7 @@ public class Filter {
 		public DeadlineFilter status(Deadline.Status s) { return this.addFilter("status", s.toString()); }
 		public DeadlineFilter by_date(String s) { return this.addFilter("by_date", s); }
 		public DeadlineFilter since_date(String s) { return this.addFilter("since_date", s); }
+		public DeadlineFilter include_date(String s) { return this.addFilter("since_date", s); }
 		public DeadlineFilter last(int i) { return this.addFilter("last", ""+i); }
 	}
 	public static class ToDoFilter extends BaseFilter<ToDoFilter> {

@@ -43,7 +43,9 @@ public abstract class Logic 	<	M extends Base,
 
 	public MM getAll(UriInfo uriInfo) {
 		System.out.println("http get "+uriInfo.getPath());
+		System.out.println("DEBUG Logic.getAll filter:"+filter().param_url());
 		F filter = filter().addFilter( uriInfo.getQueryParameters() );
+		System.out.println("DEBUG Logic.getAll filter:"+filter.param_url());
 		MM collection = client().getAll( filter );
 		return parser().toStorage( collection );
 	}
@@ -53,8 +55,8 @@ public abstract class Logic 	<	M extends Base,
 	
 	public Response post(UriInfo uriInfo, M entity) {
 		System.out.println("http post "+uriInfo.getPath());
-		client().post( entity );
-		parser().toStorage( entity );
+		entity = parser().toDatabase( entity );
+		entity = client().post( entity );
 		URI uri = URI.create( client().resource_url() +"/"+ entity.getId() );
 		return Response.created(uri).build();
 	}
@@ -75,7 +77,7 @@ public abstract class Logic 	<	M extends Base,
 		System.out.println("http put "+uriInfo.getPath());
 		entity.setId(id);
 		client().put( entity );
-		parser().toStorage( entity );
+		parser().toDatabase( entity );
 		return entity;
 	}
 	

@@ -38,14 +38,14 @@ import lsc.localdatabase.rest.client.LocalDatabaseClient.NotificationClient;
 import lsc.localdatabase.rest.client.LocalDatabaseClient.RecordClient;
 import lsc.localdatabase.rest.client.LocalDatabaseClient.ToDoClient;
 import lsc.localdatabase.rest.client.LocalDatabaseClient.UserClient;
-import lsc.rest.filter.LocalDatabaseFilter;
-import lsc.rest.filter.LocalDatabaseFilter.DataFilter;
-import lsc.rest.filter.LocalDatabaseFilter.DeadlineFilter;
-import lsc.rest.filter.LocalDatabaseFilter.GoalFilter;
-import lsc.rest.filter.LocalDatabaseFilter.NotificationFilter;
-import lsc.rest.filter.LocalDatabaseFilter.RecordFilter;
-import lsc.rest.filter.LocalDatabaseFilter.ToDoFilter;
-import lsc.rest.filter.LocalDatabaseFilter.UserFilter;
+import lsc.rest.filter.Filter;
+import lsc.rest.filter.Filter.DataFilter;
+import lsc.rest.filter.Filter.DeadlineFilter;
+import lsc.rest.filter.Filter.GoalFilter;
+import lsc.rest.filter.Filter.NotificationFilter;
+import lsc.rest.filter.Filter.RecordFilter;
+import lsc.rest.filter.Filter.ToDoFilter;
+import lsc.rest.filter.Filter.UserFilter;
 import lsc.rest.model.Data;
 import lsc.rest.model.DataCollection;
 import lsc.rest.model.Deadline;
@@ -84,7 +84,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected UserParser parser() { return LocalDatabaseParser.user; }
 		@Override
-		protected UserFilter filter() { return LocalDatabaseFilter.user; }
+		protected UserFilter filter() { return Filter.user(); }
 	}
 	
 	
@@ -105,7 +105,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected RecordParser parser() { return LocalDatabaseParser.record; }
 		@Override
-		protected RecordFilter filter() { return LocalDatabaseFilter.record; }
+		protected RecordFilter filter() { return Filter.record(); }
 	}
 	
 	
@@ -126,7 +126,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected DataParser parser() { return LocalDatabaseParser.data; }
 		@Override
-		protected DataFilter filter() { return LocalDatabaseFilter.data; }
+		protected DataFilter filter() { return Filter.data(); }
 	}
 	
 	
@@ -147,7 +147,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected GoalParser parser() { return LocalDatabaseParser.goal; }
 		@Override
-		protected GoalFilter filter() { return LocalDatabaseFilter.goal; }
+		protected GoalFilter filter() { return Filter.goal(); }
 	}
 	
 	
@@ -168,7 +168,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected DeadlineParser parser() { return LocalDatabaseParser.deadline; }
 		@Override
-		protected DeadlineFilter filter() { return LocalDatabaseFilter.deadline; }
+		protected DeadlineFilter filter() { return Filter.deadline(); }
 	}
 	
 	
@@ -189,7 +189,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected ToDoParser parser() { return LocalDatabaseParser.todo; }
 		@Override
-		protected ToDoFilter filter() { return LocalDatabaseFilter.todo; }
+		protected ToDoFilter filter() { return Filter.todo(); }
 	}
 	
 	
@@ -210,7 +210,7 @@ public class LocalDatabaseLogic {
 		@Override
 		protected NotificationParser parser() { return LocalDatabaseParser.notification; }
 		@Override
-		protected NotificationFilter filter() { return LocalDatabaseFilter.notification; }
+		protected NotificationFilter filter() { return Filter.notification(); }
 	}
 	
 	

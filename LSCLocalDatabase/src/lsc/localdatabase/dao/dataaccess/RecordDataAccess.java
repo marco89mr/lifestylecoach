@@ -28,11 +28,11 @@ public class RecordDataAccess extends BaseDataAccess<RecordDao, RecordCollection
 		}
 		if(param.containsKey("fromdate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" r.date > \""+param.getFirst("fromdate")+"\"";
+			where+=" r.date >= \""+param.getFirst("fromdate")+"\"";
 		}
 		if(param.containsKey("todate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" r.date < \""+param.getFirst("todate")+"\"";
+			where+=" r.date <= \""+param.getFirst("todate")+"\"";
 		}
 		if(param.containsKey("last"))
 			where+=" ORDER BY id DESC LIMIT 0, "+param.getFirst("last");

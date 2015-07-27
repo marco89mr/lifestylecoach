@@ -15,6 +15,8 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import lsc.localdatabase.rest.client.LocalDatabaseClient;
+import lsc.rest.filter.Filter;
 import lsc.rest.model.Deadline;
 import lsc.rest.model.DeadlineCollection;
 import lsc.rest.model.Goal;
@@ -56,7 +58,14 @@ public class GoalResource {
 	
 	@DELETE
 	public void delete() {
-		StorageLogic.goal.delete( uriInfo, goal_id );
+		System.out.println("http delete "+uriInfo.getPath());
+		//goal
+		LocalDatabaseClient.goal.delete( goal_id );
+		//deadline
+		Filter.DeadlineFilter filter = Filter.deadline().goal_id( goal_id );
+		DeadlineCollection deadlines = LocalDatabaseClient.deadline.getAll( filter );
+		for(Deadline d : deadlines)
+			LocalDatabaseClient.deadline.delete( d.getId() );
 	}
 	
 	

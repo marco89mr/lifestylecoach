@@ -2,15 +2,18 @@ package lsc.rest.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 
-//@XmlType(name = "Deadline", propOrder = { "id", "goalId", "startDate", "endDate", "status", "actualValue" })
+@XmlType(name = "Deadline", propOrder = { "id", "goalId", "startDate", "endDate", "status", "actualValue" })
 @XmlRootElement(name="deadline")
 public class Deadline extends Base {
-
+	
+	@XmlTransient
+	@XmlType(name = "no")
 	public enum Status {
-		active, sleeping, succeeded, failed;
+		succeeded, failed, succeeding, failing;
 	};
 	
 	

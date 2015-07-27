@@ -28,11 +28,11 @@ public class ToDoDataAccess extends BaseDataAccess<ToDoDao, ToDoCollectionDao> {
 		}
 		if(param.containsKey("fromdate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" t.date > \""+param.getFirst("fromdate")+"\"";
+			where+=" t.date >= \""+param.getFirst("fromdate")+"\"";
 		}
 		if(param.containsKey("todate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" t.date < \""+param.getFirst("todate")+"\"";
+			where+=" t.date <= \""+param.getFirst("todate")+"\"";
 		}
 		if(param.containsKey("last"))
 			where+=" ORDER BY id DESC LIMIT 0, "+param.getFirst("last");

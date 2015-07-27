@@ -2,6 +2,7 @@ package lsc.localdatabase.parser;
 
 import lsc.localdatabase.dao.model.UserDao;
 import lsc.localdatabase.dao.model.UserCollectionDao;
+import lsc.rest.model.Base;
 import lsc.rest.model.User;
 import lsc.rest.model.UserCollection;
 
@@ -44,7 +45,7 @@ public class UserParser extends BaseParser			<	UserDao,
 			userDao.setMail		(	entity.getMail()			);
 		}catch (IllegalArgumentException e){}
 		try{
-			userDao.setBirthdate(	entity.getBirthdate()		);
+			userDao.setBirthdate(	Base._uniformDate(entity.getBirthdate())		);
 		}catch (IllegalArgumentException e){}
 		try{
 			userDao.setPassword	(	entity.getPassword()		);

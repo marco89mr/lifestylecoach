@@ -21,16 +21,23 @@ public class StatisticLogic {
 	
 	
 	public static Statistic computeCompleteStatistic(	int user_id,
-												String record_type,
-												String data_name,
-												String from,
-												String to,
-												Interval on_interval	) {
+														String record_type,
+														String data_name,
+														String from,
+														String to,
+														Interval on_interval	) {
+		System.out.println("StatisticLogic.computeCompleteStatistic(...)");
+		System.out.println(" user_id:		"+user_id);
+		System.out.println(" record_type:	"+record_type);
+		System.out.println(" data_name:		"+data_name);
+		System.out.println(" from:			"+from);
+		System.out.println(" to:			"+to);
+		System.out.println(" on_interval:	"+on_interval);
 		
 		// compute times intervals
 		Date from_date = Base._parseDate(from);
 		Date to_date = Base._parseDate(to);
-		long milliseconds = to_date.getTime() - from_date.getTime();
+		long milliseconds = to_date.getTime() - from_date.getTime() + Goal.Interval.day.getMs();
 		long ms_per_interval = on_interval.getMs();
 		long intervals = 0;
 		if(ms_per_interval==0) {
@@ -38,10 +45,12 @@ public class StatisticLogic {
 			intervals = 1;
 		}
 		else {
-			intervals = (int) milliseconds / ms_per_interval + 1;
+			intervals = (int) milliseconds / ms_per_interval;
 		}
+		//System.out.println("DEBUG intervals:"+intervals);
+		//System.out.println("DEBUG ms_per_interval:"+ms_per_interval);
 		
-		// Compose statistic
+		// Compose statistic initial params
 		Statistic statistic = new Statistic();
 		statistic.setUserId( user_id );
 		statistic.setRecordType( record_type );
@@ -49,24 +58,21 @@ public class StatisticLogic {
 		statistic.setFromDate( from );
 		statistic.setToDate( to );
 		statistic.setOnInterval( on_interval );
-		statistic.setAverage( statistic._average() );
-		statistic.setCumulative( statistic._sum() );
-		statistic.setMax( statistic._max() );
-		statistic.setMin( statistic._min() );
 		
 		
 		// compute statistic datas
 		List<StatisticData> statisticDataList = new ArrayList<StatisticData>();
-		Date date = new Date();
+		Date a = new Date();
+		Date b = new Date();
 		StatisticData old_statistic_data = null;
 		
 		for(int i=0; i<intervals; i++) {
 			//a
-			date.setTime( from_date.getTime() + i * ms_per_interval );
-			String a = Base._formatDate(date);
+			a.setTime( from_date.getTime() + i * ms_per_interval );
+			//String a = Base._formatDate(date);
 			//b
-			date.setTime( from_date.getTime() + i * ms_per_interval );
-			String b = Base._formatDate(date);
+			b.setTime( from_date.getTime() + i * ms_per_interval + ms_per_interval - Goal.Interval.day.getMs() );
+			//String b = Base._formatDate(date);
 			//get
 			StatisticData statisticData = computeStatisticData(	user_id,
 																record_type,
@@ -80,6 +86,13 @@ public class StatisticLogic {
 		
 		statistic.setDatas( statisticDataList );
 		
+		
+		// compute global statistic
+		statistic.setAverage( statistic._average() );
+		statistic.setCumulative( statistic._sum() );
+		statistic.setMax( statistic._max() );
+		statistic.setMin( statistic._min() );
+		
 		return statistic;
 	}
     
@@ -89,10 +102,10 @@ public class StatisticLogic {
 	
 	
 	public static StatisticData computeStatisticData(	int user_id,
-												String record_type,
-												String data_name,
-												String from,
-												String to		) {
+														String record_type,
+														String data_name,
+														Date from,
+														Date to		) {
 		return computeStatisticData(	user_id,
 										record_type,
 										data_name,
@@ -100,37 +113,50 @@ public class StatisticLogic {
 										to,
 										null);
 	}
+	
 	private static StatisticData computeStatisticData(	int user_id,
 												String record_type,
 												String data_name,
-												String from,
-												String to,
+												Date from,
+												Date to,
 												StatisticData old	) {
+		System.out.println("StatisticLogic.computeStatisticData");
+		System.out.println(" user_id:			"+user_id);
+		System.out.println(" record_type:		"+record_type);
+		System.out.println(" data_name:			"+data_name);
+		System.out.println(" from:				"+from);
+		System.out.println(" to:				"+to);
+		System.out.println(" old_statistic_data:"+"old");
+		
 		// generate old for reference if unavailable
 		if( old==null ){
+			Date old_a = new Date();
+			old_a.setTime( from.getTime() - (to.getTime() - from.getTime() + Goal.Interval.day.getMs() ));
+			Date old_b = new Date();
+			old_b.setTime( from.getTime() - Goal.Interval.day.getMs() );
 			// load data
-			Filter.DataFilter old_data_filter = Filter.data.user_id(user_id)
+			Filter.DataFilter old_data_filter = Filter.data().user_id(user_id)
 					.record_type(record_type).data_name(data_name)
-					.fromdate(compute_passed_date(from, to)).todate(from);
+					.fromdate(Base._formatDate(old_a)).todate(Base._formatDate(old_b));
 			DataCollection old_data_collection = StorageClient.data.getAll(old_data_filter);
 			// compute statistic
 			old = new StatisticData();
-			old.setFromDate( from );
-			old.setToDate( to );
+			old.setFromDate( Base._formatDate(old_a) );
+			old.setToDate( Base._formatDate(old_b) );
 			old._initValues(null);
 			completeTargetAbs(	old, old_data_collection );
 		}
 		
 		// load datas
-		Filter.DataFilter data_filter = Filter.data.user_id(user_id)
+		Filter.DataFilter data_filter = Filter.data().user_id(user_id)
 			.record_type(record_type).data_name(data_name)
-			.fromdate(from).todate(to);
+			.fromdate( Base._formatDate(from) ).todate( Base._formatDate(to) );
 		DataCollection data_collection = StorageClient.data.getAll(data_filter);
 		
 		// compute statistic datas
 		StatisticData statisticData = new StatisticData();
-		statisticData.setFromDate( from );
-		statisticData.setToDate( to );
+		statisticData.setFromDate( Base._formatDate(from) );
+		statisticData.setToDate( Base._formatDate(to) );
 		//statisticData._initValues(null);
 		completeTargetAbs( statisticData, data_collection );
 		completeTargetPerc(	statisticData, old );
@@ -138,17 +164,6 @@ public class StatisticLogic {
 		completeIncrementPerc( statisticData, old );
 		//
 		return statisticData;
-	}
-	
-	
-	
-	private static String compute_passed_date(String start_date, String end_date) {
-		Date start = Base._parseDate( start_date );
-		Date end = Base._parseDate( end_date );
-		long lenght_ms = end.getTime() - start.getTime();
-		Date passed = new Date();
-		passed.setTime( start.getTime() - lenght_ms );
-		return Base._formatDate( passed );
 	}
     
 
@@ -163,8 +178,9 @@ public class StatisticLogic {
 			return;
 		//elaborate TARGET ABS values
 		for(Goal.Function f : Goal.Function.values()){
-			double value = elaborateDataCollection(Function.average, data_collection);
-			statisticData.getValues().get(f).get(Reference.target).put(Perc.abs, Float.valueOf(Double.toString(value)));
+			float value = elaborateDataCollection(f, data_collection);
+			//double value = elaborateDataCollection(Function.average, data_collection);
+			statisticData._setValue(f, Reference.target, Perc.abs, value);
 		}
 	}
 	
@@ -173,10 +189,10 @@ public class StatisticLogic {
 			return;
 		// elaborate TARGET PERC values
 		for(Goal.Function f : Goal.Function.values()){
-			double value = statisticData.getValues().get(f).get(Reference.target).get(Perc.abs)
-							/ old.getValues().get(f).get(Reference.target).get(Perc.abs)
-							* 100;
-			statisticData.getValues().get(f).get(Reference.target).put(Perc.perc, Float.valueOf(Double.toString(value)));
+			float value = statisticData._getValue(f, Reference.target, Perc.abs)
+								   / old._getValue(f, Reference.target, Perc.abs)
+								   * 100;
+			statisticData._setValue(f, Reference.target, Perc.perc, value);
 		}
 	}
 	
@@ -185,9 +201,9 @@ public class StatisticLogic {
 			return;
 		// elaborate INCREMENT ABS values
 		for(Goal.Function f : Goal.Function.values()){
-			double value = statisticData.getValues().get(f).get(Reference.target).get(Perc.abs)
-							- old.getValues().get(f).get(Reference.target).get(Perc.abs);
-			statisticData.getValues().get(f).get(Reference.increment).put(Perc.abs, Float.valueOf(Double.toString(value)));
+			float value = statisticData._getValue(f, Reference.target, Perc.abs)
+								  - old._getValue(f, Reference.target, Perc.abs);
+			statisticData._setValue(f, Reference.increment, Perc.abs, value);
 		}
 	}
 	
@@ -196,31 +212,31 @@ public class StatisticLogic {
 			return;
 		// elaborate INCREMENT PERC values
 		for(Goal.Function f : Goal.Function.values()){
-			double value = statisticData.getValues().get(f).get(Reference.increment).get(Perc.abs)
-							/ old.getValues().get(f).get(Reference.target).get(Perc.abs)
-							* 100 ;
-			statisticData.getValues().get(f).get(Reference.increment).put(Perc.perc, Float.valueOf(Double.toString(value)));
+			float value = statisticData._getValue(f, Reference.increment, Perc.abs)
+								  / old._getValue(f, Reference.target, Perc.abs)
+								  * 100 ;
+			statisticData._setValue(f, Reference.increment, Perc.perc, value);
 		}
 	}
 	
-	private static Float elaborateDataCollection(Function function, DataCollection data_collection) {
-		if(function==null || data_collection==null) 
+	private static float elaborateDataCollection(Function function, DataCollection data_collection) {
+		if(function==null || data_collection==null || data_collection.size()==0) 
 			return Float.valueOf(0);
 		switch(function){
-		case average:
-			return data_collection._sum();
 		case sum:
+			return data_collection._sum();
+		case average:
 			return data_collection._average();
 		case max:
 			return Float.parseFloat( data_collection._max().getValue() );
 		case min:
 			return Float.parseFloat( data_collection._min().getValue() );
 		case last:
-			return Float.parseFloat( data_collection.get(data_collection.size()).getValue() );
+			return Float.parseFloat( data_collection.get(data_collection.size()-1).getValue() );
 		case first:
 			return Float.parseFloat( data_collection.get(0).getValue() );
 		}
-		return null;
+		return 0;
 	}
 	
 }

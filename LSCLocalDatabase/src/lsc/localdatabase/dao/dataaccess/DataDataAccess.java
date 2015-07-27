@@ -32,15 +32,15 @@ public class DataDataAccess extends BaseDataAccess<DataDao, DataCollectionDao>{
 		}
 		if(param.containsKey("data_name")) {
 			if(!where.equals("")) where+=" and";
-			where+=" s.name LIKE \""+param.getFirst("data_name")+"\"";
+			where+=" d.name LIKE \""+param.getFirst("data_name")+"\"";
 		}
 		if(param.containsKey("fromdate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" d.record.date > \""+param.getFirst("fromdate")+"\"";
+			where+=" d.record.date >= \""+param.getFirst("fromdate")+"\"";
 		}
 		if(param.containsKey("todate")) {
 			if(!where.equals("")) where+=" and";
-			where+=" d.record.date < \""+param.getFirst("todate")+"\"";
+			where+=" d.record.date <= \""+param.getFirst("todate")+"\"";
 		}
 		if(param.containsKey("last")) {
 			where+=" ORDER BY id DESC LIMIT 0, "+param.getFirst("last");

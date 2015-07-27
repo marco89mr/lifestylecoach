@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import lsc.localdatabase.logic.LocalDatabaseLogic;
-import lsc.rest.filter.LocalDatabaseFilter;
+import lsc.rest.filter.Filter;
 import lsc.rest.model.Data;
 import lsc.rest.model.DataCollection;
 import lsc.rest.model.Record;
@@ -69,7 +69,7 @@ public class RecordResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public DataCollection getAll() {
-		return LocalDatabaseLogic.data.getAll(uriInfo, LocalDatabaseFilter.data.record_id(record_id));
+		return LocalDatabaseLogic.data.getAll(uriInfo, Filter.data().record_id(record_id));
 	}
 
 	@Path("/data")

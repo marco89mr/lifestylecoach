@@ -1,11 +1,5 @@
 package lsc.finalinterface.logic;
 
-import java.net.MalformedURLException;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import lsc.businesslogic.client.BusinessLogicClient;
 import lsc.finalinterface.rest.client.FinalInterfaceClient;
 import lsc.rest.filter.Filter;
 import lsc.rest.filter.Filter.DeadlineFilter;
@@ -20,7 +14,7 @@ public class DeadlineLogic extends BaseLogic<	Deadline,
 												StorageClient.DeadlineClient,
 												FinalInterfaceClient.DeadlineClient > {
 	@Override
-	protected DeadlineFilter filter() {return Filter.deadline; }
+	protected DeadlineFilter filter() {return Filter.deadline(); }
 	@Override
 	protected StorageClient.DeadlineClient storage_client() { return StorageClient.deadline; }
 	@Override
@@ -31,18 +25,49 @@ public class DeadlineLogic extends BaseLogic<	Deadline,
 			.getById( x.getGoalId() )
 			.getUserId();
 	}
+	
+	
+	/*
+	@Override
+	protected Deadline storage_client_getById(int authenticated_id, int id) {
+		//BusinessLogicClient.check_today( authenticated_id );
+		return storage_client().getById(id);
+	}
+	@Override
+	protected DeadlineCollection storage_client_getAll(int authenticated_id, DeadlineFilter filter) {
+		BusinessLogicClient.check_today( authenticated_id );
+		return storage_client().getAll(filter);
+	}
+	*/
+	@Override
+	protected Deadline storage_client_post(int authenticated_id, Deadline m) {
+		//Deadline n = storage_client().post(m);
+		//BusinessLogicClient.check_deadline( m );
+		return null;
+	}
+	@Override
+	protected Deadline storage_client_put(int authenticated_id, Deadline m) {
+		//Deadline n = storage_client().put(m);
+		//BusinessLogicClient.check_deadline( m );
+		return null;
+	}
+	@Override
+	protected boolean storage_client_delete(int authenticated_id, int id) {
+		// TODO
+		// not working!!!!!!!!!!!!!!!!!????????????
+		//Deadline r = StorageClient.deadline.getById(id);
+		//boolean v = storage_client().delete(id);
+		//BusinessLogicClient.check_deadline( r );
+		return false;
+		
+	}
 
 	
-	
+	/*
 	public Response post(UriInfo uriInfo, Deadline entity) {
 		Response r = super.post(uriInfo, entity);
 		// TODO call check deadline
-		try {
-			BusinessLogicClient.check_deadline( entity );
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BusinessLogicClient.check_deadline( entity );
 		return r;
 	}
 	
@@ -51,12 +76,7 @@ public class DeadlineLogic extends BaseLogic<	Deadline,
 	public Deadline put(UriInfo uriInfo, Deadline entity, int id) {
 		Deadline r = super.put(uriInfo, entity, id);
 		// TODO call check deadline
-		try {
-			BusinessLogicClient.check_deadline( entity );
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BusinessLogicClient.check_deadline( entity );
 		return r;
 	}
 	
@@ -66,6 +86,7 @@ public class DeadlineLogic extends BaseLogic<	Deadline,
 		super.delete(uriInfo, id);
 		// TODO call check deadline
 	}
+	*/
 }
 
 

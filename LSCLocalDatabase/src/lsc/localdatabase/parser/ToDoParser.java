@@ -3,6 +3,7 @@ package lsc.localdatabase.parser;
 import lsc.localdatabase.dao.dataaccess.LocalDatabaseDataAccess;
 import lsc.localdatabase.dao.model.ToDoDao;
 import lsc.localdatabase.dao.model.ToDoCollectionDao;
+import lsc.rest.model.Base;
 import lsc.rest.model.ToDo;
 import lsc.rest.model.ToDoCollection;
 
@@ -40,7 +41,7 @@ public class ToDoParser extends BaseParser<	ToDoDao,
 		dao.setId			( rest.getId()							);
 		}catch (IllegalArgumentException e){}
 		try{
-		dao.setBy_date		( rest.getByDate()						);
+		dao.setBy_date		( Base._uniformDate(rest.getByDate())	);
 		}catch (IllegalArgumentException e){}
 		try{
 		dao.setMessage		( rest.getMessage()						);

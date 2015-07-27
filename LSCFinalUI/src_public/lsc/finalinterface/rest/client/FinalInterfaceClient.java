@@ -76,7 +76,7 @@ public class FinalInterfaceClient {
 		public void put(M x) {
 			ClientUtils.<M>http_put(model_class(), resource_url() + "/" + x.getId(), x);
 		}
-		public int delete(int id) {
+		public boolean delete(int id) {
 			return ClientUtils.http_delete( resource_url() + "/" + id );
 		}
 		

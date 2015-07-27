@@ -28,6 +28,31 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	
 	
+	/*
+	protected abstract M storage_client_getById(int id);
+	protected abstract MM storage_client_getAll(F f);
+	protected abstract M storage_client_post(M m);
+	protected abstract M storage_client_put(M m);
+	protected abstract void storage_client_delete(int id);
+	*/
+	protected M storage_client_getById(int authenticated_id, int id) {
+		return storage_client().getById(id);
+	}
+	protected MM storage_client_getAll(int authenticated_id, F filter) {
+		return storage_client().getAll(filter);
+	}
+	protected M storage_client_post(int authenticated_id, M m) {
+		return storage_client().post(m);
+	}
+	protected M storage_client_put(int authenticated_id, M m) {
+		return storage_client().put(m);
+	}
+	protected boolean storage_client_delete(int authenticated_id, int id) {
+		return storage_client().delete(id);
+	}
+	
+	
+	
 	public static int authenticate(UriInfo uriInfo) {
 		if( !uriInfo.getQueryParameters().containsKey("user") ||
 			!uriInfo.getQueryParameters().containsKey("password") ){
@@ -38,7 +63,7 @@ public abstract class BaseLogic 	<	M extends Base,
 		String name = uriInfo.getQueryParameters().getFirst("user");
 		String password = uriInfo.getQueryParameters().getFirst("password");
 		System.out.println("checking authentication credentials for "+name);
-		UserCollection uu = StorageClient.user.getAll( Filter.user.name(name) );
+		UserCollection uu = StorageClient.user.getAll( Filter.user().name(name) );
 		if(uu==null || uu.size()==0){
 			//invalid user
 			System.out.println("ALERT invalid user name");
@@ -62,8 +87,7 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	
 	
-	public static boolean checkPermission(UriInfo uriInfo, int required_user_id) {
-		int authenticated_user_id = authenticate(uriInfo);
+	public static boolean checkPermission(int authenticated_user_id, int required_user_id) {
 		if( authenticated_user_id == 0 ){
 			//invalid credentials
 			System.out.println("ALERT invalid credentials");
@@ -81,36 +105,59 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	public MM getAll(UriInfo uriInfo) {
 		System.out.println("http get "+uriInfo.getPath());
+		
 		int authenticated_id = authenticate(uriInfo);
-		if( authenticated_id == 0 )
-			//invalid credentials
+		if( !checkPermission(authenticated_id, authenticated_id) )
 			return null;
-		F filter = filter().addFilter( uriInfo.getQueryParameters() );
-		MM collection = storage_client().getAll( filter );
+		
+		/*
+		 * Pre-filtering option
+		 */
+		F filter = filter();
+		filter.addFilter( uriInfo.getQueryParameters() );
+		filter.addFilter("user_id", ""+authenticated_id);
+		
+		return storage_client_getAll(authenticated_id,  filter );
+		 
+		/*
+		 *  Post-filtering option 
+		 * 
+		@SuppressWarnings("unchecked")
+		MM out = (MM) collection.clone();
+		out.clear();
 		for(M entity : collection)
-			if( authenticated_id != master(entity) )
-				//access to this element not granted
-				collection.remove(entity);
-		return collection;
+			if( authenticated_id == master(entity) )
+				//access to this element granted
+				out.add(entity);
+		return out;
+		*/
 	}
 
 	public MM getAllUnderGoal(UriInfo uriInfo, int goal_id) {
 		System.out.println("http get "+uriInfo.getPath());
-		if( !checkPermission(uriInfo, StorageClient.goal.getById(goal_id).getUserId()) )
-			return null;
-		F filter = filter().addFilter("goal_id", ""+goal_id);
+		int authenticated_id = authenticate(uriInfo);
+		
+		//if( !checkPermission(authenticated_id, StorageClient.goal.getById(goal_id).getUserId()) )
+		//	return null;
+		
+		F filter = filter();
 		filter.addFilter( uriInfo.getQueryParameters() );
-		MM collection = storage_client().getAll( filter );
-		return collection;
+		filter.addFilter("goal_id", ""+goal_id);
+		filter.addFilter("user_id", ""+authenticated_id);
+		return storage_client_getAll(authenticated_id, filter );
 	}
 
 	public MM getAllUnderUser(UriInfo uriInfo, int user_id) {
 		System.out.println("http get "+uriInfo.getPath());
-		if( !checkPermission(uriInfo, user_id) )
-			return null;
-		F filter = filter().addFilter("user_id", ""+user_id);
+		int authenticated_id = authenticate(uriInfo);
+		
+		//if( !checkPermission(authenticated_id, user_id) )
+		//	return null;
+		
+		F filter = filter();
 		filter.addFilter( uriInfo.getQueryParameters() );
-		MM collection = storage_client().getAll( filter );
+		filter.addFilter("user_id", ""+user_id);
+		MM collection = storage_client_getAll(authenticated_id, filter );
 		return collection;
 	}
 	
@@ -118,9 +165,13 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	public M getById(UriInfo uriInfo, int id) {
 		System.out.println("http get "+uriInfo.getPath());
-		M entity = storage_client().getById(id);
-		if( !checkPermission(uriInfo, master(entity)) )
+		int authenticated_id = authenticate(uriInfo);
+		
+		M entity = storage_client_getById(authenticated_id, id);
+		
+		if( !checkPermission(authenticated_id, master(entity)) )
 			return null;
+		
 		return entity;
 	}
 	
@@ -128,9 +179,12 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	public Response post(UriInfo uriInfo, M entity) {
 		System.out.println("http post "+uriInfo.getPath());
-		if( !checkPermission(uriInfo, master(entity)) )
+		int authenticated_id = authenticate(uriInfo);
+		
+		if( !checkPermission(authenticated_id, master(entity)) )
 			return null;
-		entity = storage_client().post( entity );
+		
+		entity = storage_client_post(authenticated_id, entity );
 		URI uri = URI.create( final_client().resource_url() +"/"+ entity.getId() );
 		return Response.created(uri).build();
 	}
@@ -139,10 +193,13 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	public M put(UriInfo uriInfo, M entity, int id) {
 		System.out.println("http put "+uriInfo.getPath());
-		if( !checkPermission(uriInfo, master(storage_client().getById(id))) )
+		int authenticated_id = authenticate(uriInfo);
+		
+		if( !checkPermission(authenticated_id, master(storage_client_getById(authenticated_id, id))) )
 			return null;
+		
 		entity.setId(id);
-		storage_client().put( entity );
+		storage_client_put(authenticated_id, entity );
 		return entity;
 	}
 	
@@ -150,9 +207,12 @@ public abstract class BaseLogic 	<	M extends Base,
 	
 	public void delete(UriInfo uriInfo, int id) {
 		System.out.println("http delete "+uriInfo.getPath());
-		if( !checkPermission(uriInfo, master(storage_client().getById(id))) )
+		int authenticated_id = authenticate(uriInfo);
+		
+		if( !checkPermission(authenticated_id, master(storage_client_getById(authenticated_id, id))) )
 			return;
-		storage_client().delete( id );
+		
+		storage_client_delete(authenticated_id, id );
 	}
 	
 	

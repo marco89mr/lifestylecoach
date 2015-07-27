@@ -85,14 +85,14 @@ public class UserResource {
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public RecordComplexCollection getAllRecords() {
 		System.out.println("http get "+uriInfo.getPath());
-		RecordFilter record_filters = Filter.record
+		RecordFilter record_filters = Filter.record()
 								.user_id( user_id )
 								.addFilter( uriInfo.getQueryParameters() );
 		RecordCollection recs = LocalDatabaseClient.record.getAll( record_filters );
 		RecordComplexCollection recsc = new RecordComplexCollection();
 		for(Record r : recs){
 			int id = r.getId();
-			Filter.DataFilter filter = Filter.data.user_id(id);
+			Filter.DataFilter filter = Filter.data().user_id(id);
 			DataCollection datas = LocalDatabaseClient.data.getAll( filter );
 			RecordComplex rc = StorageParser.record.toRecordComplex(r, datas);
 			recsc.add(rc);

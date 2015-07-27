@@ -99,12 +99,12 @@ public class MainResource {
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public RecordComplexCollection getAllRecords() {
 		System.out.println("http get "+uriInfo.getPath());
-		Filter.RecordFilter record_filters = Filter.record.addFilter(uriInfo.getQueryParameters());
+		Filter.RecordFilter record_filters = Filter.record().addFilter(uriInfo.getQueryParameters());
 		RecordCollection recs = LocalDatabaseClient.record.getAll( record_filters );
 		RecordComplexCollection recsc = new RecordComplexCollection();
 		for(Record r : recs){
 			int record_id = r.getId();
-			Filter.DataFilter data_filters = Filter.data.record_id(record_id);
+			Filter.DataFilter data_filters = Filter.data().record_id(record_id);
 			DataCollection datas = LocalDatabaseClient.data.getAll( data_filters );
 			RecordComplex rc = StorageParser.record.toRecordComplex(r, datas);
 			recsc.add(rc);

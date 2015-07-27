@@ -16,7 +16,7 @@ public class Goal extends Base {
 		average, sum, max, min, last, first;
 	};
 	public enum Reference {
-		target, increment, decrement;
+		target, increment;//, decrement;
 	};
 	public enum Perc {
 		abs, perc;
@@ -134,6 +134,21 @@ public class Goal extends Base {
 	public void setDays(String x) { this.days = x; }
 	
 	
+
+	
+	public String _description() {
+		String description =
+				"The "
+				+ (reference==Reference.increment?"increment of the ":"")
+				+ function + " value of "
+				+ record_type + "-"	+ data_name
+				+ " have to be "
+				+ operator + (operator==Operator.equals?" to":" than")
+				+ (perc==Perc.abs?" ":" the ") + value
+				+ (perc==Perc.abs?"":"% of the last time")
+				;
+		return description;
+	}
 	
 	
 	

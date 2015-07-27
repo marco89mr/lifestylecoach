@@ -14,7 +14,7 @@ public class ToDoLogic extends BaseLogic<	ToDo,
 											StorageClient.ToDoClient,
 											FinalInterfaceClient.ToDoClient > {
 	@Override
-	protected ToDoFilter filter() {return Filter.todo; }
+	protected ToDoFilter filter() {return Filter.todo(); }
 	@Override
 	protected StorageClient.ToDoClient storage_client() { return StorageClient.todo; }
 	@Override

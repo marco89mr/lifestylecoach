@@ -3,6 +3,7 @@ package lsc.localdatabase.parser;
 import lsc.localdatabase.dao.dataaccess.LocalDatabaseDataAccess;
 import lsc.localdatabase.dao.model.NotificationCollectionDao;
 import lsc.localdatabase.dao.model.NotificationDao;
+import lsc.rest.model.Base;
 import lsc.rest.model.Notification;
 import lsc.rest.model.NotificationCollection;
 
@@ -46,7 +47,7 @@ public class NotificationParser extends BaseParser<	NotificationDao,
 		dao.setId			( rest.getId()						);
 		}catch (IllegalArgumentException e){}
 		try{
-		dao.setDate			( rest.getDate()					);
+		dao.setDate			( Base._uniformDate(rest.getDate())	);
 		}catch (IllegalArgumentException e){}
 		try{
 		dao.setMessage		( rest.getMessage()					);

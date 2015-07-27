@@ -2,6 +2,11 @@
     <wb-module deploy-name="LSCStorage">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/shared"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/localdatabese_src_public"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_public"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/localdatabase"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/andrux"/>
         <property name="context-root" value="LSCStorage"/>
         <property name="java-output-path" value="/LSCStorage/build/classes"/>
     </wb-module>

@@ -1,5 +1,7 @@
 package lsc.finalinterface.resources;
 
+import java.net.MalformedURLException;
+
 import javax.ejb.*;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;

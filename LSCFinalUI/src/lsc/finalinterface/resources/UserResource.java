@@ -1,5 +1,9 @@
 package lsc.finalinterface.resources;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
 import javax.ejb.*;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -8,13 +12,28 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
 
+import org.glassfish.jersey.client.ClientConfig;
+
+import lsc.businesslogic.client.BusinessLogicClient;
+import lsc.businesslogic.client.JaxWsHandlerResolver;
+import lsc.businesslogic.ws.LSCLogic;
+import lsc.finalinterface.logic.BaseLogic;
 import lsc.finalinterface.logic.FinalInterfaceLogic;
+import lsc.rest.client.ClientUtils;
+import lsc.rest.filter.Filter;
 import lsc.rest.model.Deadline;
 import lsc.rest.model.DeadlineCollection;
 import lsc.rest.model.Goal;
@@ -26,6 +45,8 @@ import lsc.rest.model.RecordComplexCollection;
 import lsc.rest.model.ToDo;
 import lsc.rest.model.ToDoCollection;
 import lsc.rest.model.User;
+import lsc.rest.model.UserCollection;
+import lsc.storage.rest.client.StorageClient;
 
 
 @Stateless
@@ -138,6 +159,32 @@ public class UserResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public NotificationCollection getAllNotifications() {
+		
+		/*
+		String requestUrl = StorageClient.user.resource_url();
+		// build end-point link
+		URI uri = UriBuilder.fromUri( requestUrl ).build();
+		// set up client
+		ClientConfig clientConfig = new ClientConfig();
+		Client client = ClientBuilder.newClient( clientConfig );
+		WebTarget service = client.target( uri );
+		Builder builder = service.request().accept(MediaType.APPLICATION_XML);
+		Response response = builder.get();
+		
+		UserCollection uu = response.readEntity( UserCollection.class );
+		response.close();
+		
+		//UserCollection uu = StorageClient.user.getAll( Filter.user.name("marco") );
+		
+		NotificationCollection nn = new NotificationCollection();
+		System.out.println("DEBUG A");
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		System.out.println("DEBUG B");
+		nn = lscLogic.checkToday(user_id);
+		System.out.println("DEBUG C");
+    	return nn;
+		*/
+		
 		return FinalInterfaceLogic.notification.getAllUnderUser(uriInfo, user_id);
 	}
 	

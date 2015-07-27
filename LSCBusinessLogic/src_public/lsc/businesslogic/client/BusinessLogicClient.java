@@ -7,50 +7,74 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
 import lsc.businesslogic.ws.LSCLogic;
-import lsc.rest.model.Deadline;
 import lsc.rest.model.Goal;
-import lsc.rest.model.NotificationCollection;
-import lsc.rest.model.RecordComplex;
-import lsc.rest.model.Statistic;
 import lsc.rest.model.Goal.Interval;
-import lsc.rest.model.User;
+import lsc.rest.model.Statistic;
  
 public class BusinessLogicClient{
 	
-
 	
-    public static NotificationCollection check_record(RecordComplex record) {
-		LSCLogic lscLogic = init();
-		RecordComplex r = new RecordComplex();
-		r.setId( record.getId() );
-		r.setType( record.getType() );
-		r.setDate( record.getDate() );
-		r.setUserId( record.getUserId() );
-		lscLogic.updateStatusByRecord( r );
+	
+    public static Goal postAndStartGoal(Goal goal) {
+		System.out.println("BusinessLogicClient.postAndStartGoal(goal)");
+		goal._print();
+		
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		return lscLogic.postAndStartGoal( goal );
+    }
+	
+	
+	
+    public static void checkRecordsUnder(int userId, String record_type, String date) {
+		System.out.println("BusinessLogicClient.checkRecordsUnder("+userId+","+record_type+","+date+")");
+		//record._print();
+		
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		lscLogic.checkRecordsUnder( userId, record_type, date );
+    }
+    
+    
+    
+    /*
+    public static NotificationCollection checkDeadline(Deadline deadline) {
+		System.out.println("BusinessLogicClient.check_deadline(Deadline)");
+		deadline._print();
+		
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		lscLogic.checkDeadline( deadline );
     	return null;
     }
+    */
     
-    public static NotificationCollection check_deadline(Deadline deadline) {
-		LSCLogic lscLogic = init();
-		lscLogic.updateStatusByDeadline( deadline );
-    	return null;
+    
+    
+    public static void checkExpiredDedline(int user_id) {
+		System.out.println("BusinessLogicClient.check_deadline(user_id:"+user_id+")");
+		
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		lscLogic.checkExpiredDedline(user_id);
     }
     
-    public static NotificationCollection check_today(int user_id) {
-		LSCLogic lscLogic = init();
-		NotificationCollection nn = lscLogic.checkToday(user_id);
-    	return nn;
-    }
     
-    public static Statistic compute_statistic(	int user_id,
+    
+    public static Statistic computeStatisticFor(int user_id,
     											String record_type,
 	    										String field_name,
 	    										String from,
 	    										String to,
 	    										Interval on_interval,
 	    										Goal.Function function	) {
-		LSCLogic lscLogic = init();
-		return lscLogic.computeStatistic(	user_id,
+		System.out.println("BusinessLogicClient.compute_statistic(...)");
+		System.out.println(" user_id:		"+user_id);
+		System.out.println(" record_type:	"+record_type);
+		System.out.println(" field_name:	"+field_name);
+		System.out.println(" from:			"+from);
+		System.out.println(" to:			"+to);
+		System.out.println(" on_interval:	"+on_interval);
+		System.out.println(" function:		"+function);
+		
+		LSCLogic lscLogic = BusinessLogicClient.init();
+		return lscLogic.computeStatisticFor(user_id,
 											record_type,
 											field_name,
 											from,
@@ -59,8 +83,9 @@ public class BusinessLogicClient{
 											function	);
     }
 	
+    
+    
 	public static LSCLogic init() {
-		
 		LSCLogic lscLogic = null;
 		URL url;
 		try {
@@ -76,16 +101,10 @@ public class BusinessLogicClient{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		/*
-		LSCLogic_Service lscLogicService = new LSCLogic_Service();
-		LSCLogic lscLogic = lscLogicService.getLSCLogicImplPort();
-        //System.out.println(hello.updateStatusByDeadline(deadline));
-		*/
-		
 		return lscLogic;
 	}
 	
 	
 	
 }
+

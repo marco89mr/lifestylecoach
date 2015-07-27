@@ -3,6 +3,7 @@ package lsc.localdatabase.parser;
 import lsc.localdatabase.dao.dataaccess.LocalDatabaseDataAccess;
 import lsc.localdatabase.dao.model.RecordDao;
 import lsc.localdatabase.dao.model.RecordCollectionDao;
+import lsc.rest.model.Base;
 import lsc.rest.model.Record;
 import lsc.rest.model.RecordCollection;
 
@@ -39,7 +40,7 @@ public class RecordParser extends BaseParser<	RecordDao,
 		recordDao.setUser		(	LocalDatabaseDataAccess.user.getById( entity.getUserId() )	);
 		}catch (IllegalArgumentException e){}
 		try{
-		recordDao.setDate		(	entity.getDate()			);
+		recordDao.setDate		(	Base._uniformDate(entity.getDate())			);
 		}catch (IllegalArgumentException e){}
 		try{
 		recordDao.setType		(	entity.getType()			);

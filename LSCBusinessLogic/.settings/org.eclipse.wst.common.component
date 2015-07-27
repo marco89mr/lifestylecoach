@@ -2,6 +2,9 @@
     <wb-module deploy-name="LSCBusinessLogic">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/shared"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/storage_src_public"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_public"/>
         <property name="context-root" value="LSCBusinessLogic"/>
         <property name="java-output-path" value="/LSCBusinessLogic/build/classes"/>
     </wb-module>

@@ -22,11 +22,9 @@ public class TestApp {
 		
 		
 		
-		DataCollection dd = LocalDatabaseClient.data.getAll(Filter.data);
+		//DataCollection dd = LocalDatabaseClient.data.getAll(Filter.data);
 		
-		StorageParser.data.toStorage( dd );
-		
-		
+		//StorageParser.data.toStorage( dd );
 		
 		
 		
@@ -34,11 +32,13 @@ public class TestApp {
 		
 		
 		
-		RecordCollection recs = LocalDatabaseClient.record.getAll( Filter.record );
+		
+		
+		RecordCollection recs = LocalDatabaseClient.record.getAll( Filter.record() );
 		RecordComplexCollection recsc = new RecordComplexCollection();
 		for(Record r : recs){
 			int record_id = r.getId();
-			Filter.DataFilter data_filters = Filter.data.record_id(record_id);
+			Filter.DataFilter data_filters = Filter.data().record_id(record_id);
 			DataCollection datas = LocalDatabaseClient.data.getAll( data_filters );
 			RecordComplex rc = StorageParser.record.toRecordComplex(r, datas);
 			recsc.add(rc);

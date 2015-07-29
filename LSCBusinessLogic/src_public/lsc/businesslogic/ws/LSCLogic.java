@@ -13,7 +13,8 @@ import lsc.rest.model.Goal.Interval;
 import lsc.rest.model.Statistic;
 
 @WebService
-@SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL) //optional
+//@SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL) //optional
+@SOAPBinding(style = Style.RPC)
 public interface LSCLogic {
 	
 	

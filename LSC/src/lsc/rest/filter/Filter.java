@@ -123,12 +123,11 @@ public class Filter {
 		public DeadlineFilter status(Deadline.Status s) { return this.addFilter("status", s.toString()); }
 		public DeadlineFilter by_date(String s) { return this.addFilter("by_date", s); }
 		public DeadlineFilter since_date(String s) { return this.addFilter("since_date", s); }
-		public DeadlineFilter include_date(String s) { return this.addFilter("since_date", s); }
+		public DeadlineFilter include_date(String s) { return this.addFilter("include_date", s); }
 		public DeadlineFilter last(int i) { return this.addFilter("last", ""+i); }
 	}
 	public static class ToDoFilter extends BaseFilter<ToDoFilter> {
 		public ToDoFilter user_id(int id) { return this.addFilter("user_id", ""+id); }
-		public ToDoFilter type(String s) { return this.addFilter("type", s); }
 		public ToDoFilter last(int i) { return this.addFilter("last", ""+i); }
 		public ToDoFilter fromdate(String s) { return this.addFilter("fromdate", s); }
 		public ToDoFilter todate(String s) { return this.addFilter("todate", s); }

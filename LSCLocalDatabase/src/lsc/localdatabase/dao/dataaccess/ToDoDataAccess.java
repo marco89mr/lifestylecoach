@@ -22,10 +22,6 @@ public class ToDoDataAccess extends BaseDataAccess<ToDoDao, ToDoCollectionDao> {
 			if(!where.equals("")) where+=" and";
 			where+=" t.user.id = "+param.getFirst("user_id")+"";
 		}
-		if(param.containsKey("type")) {
-			if(!where.equals("")) where+=" and";
-			where+=" t.type LIKE \""+param.getFirst("type")+"\"";
-		}
 		if(param.containsKey("fromdate")) {
 			if(!where.equals("")) where+=" and";
 			where+=" t.date >= \""+param.getFirst("fromdate")+"\"";
